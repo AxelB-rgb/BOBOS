@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Jalon 1 — Insights bruts</title>
+  <style>
+    body { font-family: sans-serif; margin: 1.5rem; background: #0f172a; color: #e2e8f0; }
+    h1 { font-size: 1.2rem; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+    th, td { border-bottom: 1px solid #334155; padding: 0.4rem 0.5rem; text-align: left; vertical-align: top; }
+    .high { color: #fca5a5; }
+    .medium { color: #fdba74; }
+    .low { color: #86efac; }
+    code { color: #93c5fd; }
+  </style>
+</head>
+<body>
+  <h1>Jalon 1 — GET /api/insights/raw</h1>
+  <p>Vérification minimale. Période par défaut = jeu de données IoT.</p>
+  <pre id="summary">Chargement…</pre>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th><th>Sévérité</th><th>Lieu</th><th>Début</th><th>Durée</th><th>kWh</th><th>Preuve</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <script>
+    fetch("/api/insights/raw?from=2026-01-12&to=2026-01-18&limit=50")
+      .then((r) => r.json())
+      .then((data) => {
+        document.getElementById("summary").textContent = JSON.stringify(data.summary, null, 2);
+        const body = document.getElementById("rows");
+        for (const a of data.anomalies) {
+          const place = a.room ? `${a.room_name || ""} (${a.room})` : `${a.zone} / ${a.floor}`;
+          body.insertAdjacentHTML("beforeend", `
+            <tr>
+              <td><code>${a.type}</code></td>
+              <td class="${a.severity}">${a.severity}</td>
+              <td>${place}<br>${a.floor || ""} ${a.zone || ""}</td>
+              <td>${a.start_at}</td>
+              <td>${a.duration_hours} h</td>
+              <td>${a.energy_kwh}</td>
+              <td>${a.evidence}</td>
+            </tr>`);
+        }
+      })
+      .catch((err) => {
+        document.getElementById("summary").textContent = String(err);
+      });
+  </script>
+</body>
+</html>

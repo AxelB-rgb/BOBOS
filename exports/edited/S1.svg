@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5414.003 9056.217" width="5414.003" height="9056.217" data-floor-id="114" data-floor-name="S1" data-coordinate-system="campus-dijon-webapp" data-heatmap-ready="true">
+<metadata>
+  <campus-dijon>
+    <coordinate-system>webapp-svg</coordinate-system>
+    <origin>top-left</origin>
+    <x-axis>right</x-axis>
+    <y-axis>down</y-axis>
+    <min-x>185620701.31780186</min-x>
+    <max-x>185626115.32098186</max-x>
+    <min-y>623732452.785272</min-y>
+    <max-y>623741509.0023159</max-y>
+    <width>5414.003179997206</width>
+    <height>9056.217043876648</height>
+    <ifc-space-count>14</ifc-space-count>
+    <heatmap-room-count>14</heatmap-room-count>
+    <suspected-container-count>6</suspected-container-count>
+  </campus-dijon>
+</metadata>
+<defs>
+<clipPath id="clip-space-25615" clipPathUnits="userSpaceOnUse" data-space-id="25615"><path d="M 5077.942 7068.914 L 4875.006 3044.027 L 4265.779 3074.744 L 4240.047 2564.393 L 4852.270 2533.524 L 4756.391 631.940 L 1230.870 809.698 L 1351.221 3196.666 L 1256.342 3201.449 L 165.711 4407.900 L 173.012 4552.716 L 822.188 4519.985 L 814.886 4375.169 L 1289.073 3850.625 L 1383.953 3845.841 L 1597.111 8073.465 L 1728.944 8066.818 L 1757.748 8638.098 L 3355.718 8557.528 L 3285.471 7164.297 L 5048.232 7075.419 L 5047.980 7070.425 Z M 3884.079 2772.582 L 4073.838 2763.014 L 4089.751 3078.613 L 3899.992 3088.181 Z M 3750.182 3095.735 L 3734.270 2780.135 L 3884.079 2772.582 L 3899.992 3088.181 Z M 3494.566 2772.196 L 3085.086 2792.842 L 3077.533 2643.032 L 3487.012 2622.386 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-28268" clipPathUnits="userSpaceOnUse" data-space-id="28268"><path d="M 2677.524 716.732 L 2654.863 267.302 L 2205.434 289.963 L 2228.094 739.392 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-21661" clipPathUnits="userSpaceOnUse" data-space-id="21661"><path d="M 4873.998 3024.052 L 4862.920 2804.331 L 4832.958 2805.842 L 4830.440 2755.906 L 4860.402 2754.395 L 4850.281 2553.650 L 4620.572 2565.232 L 4633.715 2825.901 L 4364.058 2839.497 L 4274.172 2844.029 L 4284.747 3053.763 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-25505" clipPathUnits="userSpaceOnUse" data-space-id="25505"><path d="M 3483.102 7350.582 L 3315.315 7359.042 L 3322.365 7498.864 L 3797.761 7474.894 L 3806.322 7644.679 L 3950.139 7637.427 L 3934.529 7327.821 L 3790.711 7335.072 L 3795.243 7424.958 L 3487.634 7440.468 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-26528" clipPathUnits="userSpaceOnUse" data-space-id="26528"><path d="M 4261.029 2583.360 L 4271.654 2794.092 L 4361.540 2789.560 L 4363.051 2819.522 L 4612.734 2806.933 L 4600.598 2566.239 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-24378" clipPathUnits="userSpaceOnUse" data-space-id="24378"><path d="M 4111.626 464.195 L 3747.089 482.575 L 3756.153 662.347 L 4120.690 643.967 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-24322" clipPathUnits="userSpaceOnUse" data-space-id="24322"><path d="M 2208.120 740.399 L 2199.056 560.627 L 1839.512 578.756 L 1848.577 758.527 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-21786" clipPathUnits="userSpaceOnUse" data-space-id="21786"><path d="M 3494.566 2772.196 L 3487.012 2622.386 L 3077.533 2643.032 L 3085.086 2792.842 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-25661" clipPathUnits="userSpaceOnUse" data-space-id="25661"><path d="M 4089.751 3078.613 L 4073.838 2763.014 L 3884.079 2772.582 L 3899.992 3088.181 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-25647" clipPathUnits="userSpaceOnUse" data-space-id="25647"><path d="M 4140.393 7141.217 L 4156.306 7456.817 L 4326.090 7448.256 L 4310.177 7132.657 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-24393" clipPathUnits="userSpaceOnUse" data-space-id="24393"><path d="M 5230.395 6815.916 L 5105.554 6822.211 L 5124.941 7206.722 L 5249.782 7200.428 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-21873" clipPathUnits="userSpaceOnUse" data-space-id="21873"><path d="M 3899.992 3088.181 L 3884.079 2772.582 L 3734.270 2780.135 L 3750.182 3095.735 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-24776" clipPathUnits="userSpaceOnUse" data-space-id="24776"><path d="M 5161.869 8336.296 L 5164.890 8396.220 L 5224.814 8393.198 L 5221.793 8333.274 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+<clipPath id="clip-space-24761" clipPathUnits="userSpaceOnUse" data-space-id="24761"><path d="M 5134.676 7796.981 L 5137.698 7856.905 L 5197.622 7853.883 L 5194.600 7793.960 Z" fill-rule="evenodd" clip-rule="evenodd" /></clipPath>
+</defs>
+
+<style>
+  .ifc-space {
+    fill: #263e57;
+    fill-opacity: .32;
+    stroke: #577da3;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    cursor: pointer;
+  }
+
+  .ifc-space:hover {
+    fill-opacity: .58;
+    stroke-width: 3;
+  }
+
+  .ifc-wall {
+    fill: none;
+    stroke: #e8f1fb;
+    stroke-width: 5;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+
+  .ifc-door {
+    fill: none;
+    stroke: #58d68d;
+    stroke-width: 4;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+
+  .ifc-window {
+    fill: none;
+    stroke: #55b7ff;
+    stroke-width: 4;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+
+  .ifc-space-label {
+    fill: #ffffff;
+    font-family: Inter, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: #07101d;
+    stroke-width: 4;
+  }
+
+  .ifc-space-code {
+    fill: #b9d9ff;
+    font-family: Inter, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: #07101d;
+    stroke-width: 3;
+  }
+</style>
+<rect x="0" y="0" width="5414.003" height="9056.217" fill="#07101d" data-layer="background" />
+<g id="spaceGroup" data-layer="spaces">
+<path id="space-25615" class="ifc-space" d="M 5077.942 7068.914 L 4875.006 3044.027 L 4265.779 3074.744 L 4240.047 2564.393 L 4852.270 2533.524 L 4756.391 631.940 L 1230.870 809.698 L 1351.221 3196.666 L 1256.342 3201.449 L 165.711 4407.900 L 173.012 4552.716 L 822.188 4519.985 L 814.886 4375.169 L 1289.073 3850.625 L 1383.953 3845.841 L 1597.111 8073.465 L 1728.944 8066.818 L 1757.748 8638.098 L 3355.718 8557.528 L 3285.471 7164.297 L 5048.232 7075.419 L 5047.980 7070.425 Z M 3884.079 2772.582 L 4073.838 2763.014 L 4089.751 3078.613 L 3899.992 3088.181 Z M 3750.182 3095.735 L 3734.270 2780.135 L 3884.079 2772.582 L 3899.992 3088.181 Z M 3494.566 2772.196 L 3085.086 2792.842 L 3077.533 2643.032 L 3487.012 2622.386 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="25615" data-code="34" data-room-name="COMMUN" data-area="25475872.0" data-layer="space" data-selectable="true" data-heatmap-target="space-25615" data-clip-path="clip-space-25615" data-suspected-container="true" data-isolated-children="2" />
+<path id="space-28268" class="ifc-space" d="M 2677.524 716.732 L 2654.863 267.302 L 2205.434 289.963 L 2228.094 739.392 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="28268" data-code="S1-08-N" data-room-name="Local Technique" data-area="202504.0" data-layer="space" data-selectable="true" data-heatmap-target="space-28268" data-clip-path="clip-space-28268" data-suspected-container="false" data-isolated-children="0" />
+<path id="space-21661" class="ifc-space" d="M 4873.998 3024.052 L 4862.920 2804.331 L 4832.958 2805.842 L 4830.440 2755.906 L 4860.402 2754.395 L 4850.281 2553.650 L 4620.572 2565.232 L 4633.715 2825.901 L 4364.058 2839.497 L 4274.172 2844.029 L 4284.747 3053.763 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="21661" data-code="S1-06-N" data-room-name="Local Technique" data-area="182440.0" data-layer="space" data-selectable="true" data-heatmap-target="space-21661" data-clip-path="clip-space-21661" data-suspected-container="false" data-isolated-children="0" />
+<path id="space-25505" class="ifc-space" d="M 3483.102 7350.582 L 3315.315 7359.042 L 3322.365 7498.864 L 3797.761 7474.894 L 3806.322 7644.679 L 3950.139 7637.427 L 3934.529 7327.821 L 3790.711 7335.072 L 3795.243 7424.958 L 3487.634 7440.468 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="25505" data-code="33" data-room-name="COMMUN" data-area="83584.0" data-layer="space" data-selectable="true" data-heatmap-target="space-25505" data-clip-path="clip-space-25505" data-suspected-container="true" data-isolated-children="0" />
+<path id="space-26528" class="ifc-space" d="M 4261.029 2583.360 L 4271.654 2794.092 L 4361.540 2789.560 L 4363.051 2819.522 L 4612.734 2806.933 L 4600.598 2566.239 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="26528" data-code="S1-07-N" data-room-name="Local Télécom" data-area="79248.0" data-layer="space" data-selectable="true" data-heatmap-target="space-26528" data-clip-path="clip-space-26528" data-suspected-container="false" data-isolated-children="0" />
+<path id="space-24378" class="ifc-space" d="M 4111.626 464.195 L 3747.089 482.575 L 3756.153 662.347 L 4120.690 643.967 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="24378" data-code="VH:1425251" data-room-name="VH" data-area="65704.0" data-layer="space" data-selectable="true" data-heatmap-target="space-24378" data-clip-path="clip-space-24378" data-suspected-container="false" data-isolated-children="0" />
+<path id="space-24322" class="ifc-space" d="M 2208.120 740.399 L 2199.056 560.627 L 1839.512 578.756 L 1848.577 758.527 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="24322" data-code="VH:1423894" data-room-name="VH" data-area="64800.0" data-layer="space" data-selectable="true" data-heatmap-target="space-24322" data-clip-path="clip-space-24322" data-suspected-container="false" data-isolated-children="0" />
+<path id="space-21786" class="ifc-space" d="M 3494.566 2772.196 L 3487.012 2622.386 L 3077.533 2643.032 L 3085.086 2792.842 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="21786" data-code="C-S1-05-N" data-room-name="Sas" data-area="61512.0" data-layer="space" data-selectable="true" data-heatmap-target="space-21786" data-clip-path="clip-space-21786" data-suspected-container="false" data-isolated-children="0" />
+<path id="space-25661" class="ifc-space" d="M 4089.751 3078.613 L 4073.838 2763.014 L 3884.079 2772.582 L 3899.992 3088.181 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="25661" data-code="37" data-room-name="COMMUN" data-area="60032.0" data-layer="space" data-selectable="true" data-heatmap-target="space-25661" data-clip-path="clip-space-25661" data-suspected-container="true" data-isolated-children="0" />
+<path id="space-25647" class="ifc-space" d="M 4140.393 7141.217 L 4156.306 7456.817 L 4326.090 7448.256 L 4310.177 7132.657 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="25647" data-code="36" data-room-name="COMMUN" data-area="53712.0" data-layer="space" data-selectable="true" data-heatmap-target="space-25647" data-clip-path="clip-space-25647" data-suspected-container="true" data-isolated-children="0" />
+<path id="space-24393" class="ifc-space" d="M 5230.395 6815.916 L 5105.554 6822.211 L 5124.941 7206.722 L 5249.782 7200.428 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="24393" data-code="VB:1425253" data-room-name="VB" data-area="48120.0" data-layer="space" data-selectable="true" data-heatmap-target="space-24393" data-clip-path="clip-space-24393" data-suspected-container="true" data-isolated-children="0" />
+<path id="space-21873" class="ifc-space" d="M 3899.992 3088.181 L 3884.079 2772.582 L 3734.270 2780.135 L 3750.182 3095.735 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="21873" data-code="C-S1-03-N" data-room-name="Sas" data-area="47392.0" data-layer="space" data-selectable="true" data-heatmap-target="space-21873" data-clip-path="clip-space-21873" data-suspected-container="false" data-isolated-children="0" />
+<path id="space-24776" class="ifc-space" d="M 5161.869 8336.296 L 5164.890 8396.220 L 5224.814 8393.198 L 5221.793 8333.274 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="24776" data-code="VB:2812811" data-room-name="VB" data-area="3600.0" data-layer="space" data-selectable="true" data-heatmap-target="space-24776" data-clip-path="clip-space-24776" data-suspected-container="true" data-isolated-children="0" />
+<path id="space-24761" class="ifc-space" d="M 5134.676 7796.981 L 5137.698 7856.905 L 5197.622 7853.883 L 5194.600 7793.960 Z" fill-rule="evenodd" clip-rule="evenodd" data-space-id="24761" data-code="VH:2812809" data-room-name="VH" data-area="3592.0" data-layer="space" data-selectable="true" data-heatmap-target="space-24761" data-clip-path="clip-space-24761" data-suspected-container="false" data-isolated-children="0" />
+</g>
+<g id="heatmapGroup" data-layer="heatmap" pointer-events="none">
+</g>
+<g id="wallGroup" data-layer="walls">
+<line x1="3031.760" y1="8586.378" x2="2322.660" y2="8622.131" class="ifc-wall" data-element-id="217236" data-element-name="Mur de base:MB-25cm-Anthracite:2009817" data-layer="wall" />
+<line x1="1615.928" y1="8645.248" x2="1587.627" y2="8083.955" class="ifc-wall" data-element-id="255592" data-element-name="Mur de base:MB-20cm Anthracite:5099030" data-layer="wall" />
+<line x1="2332.648" y1="8621.627" x2="2222.787" y2="8627.166" class="ifc-wall" data-element-id="255703" data-element-name="Mur de base:MB-25cm-Anthracite:5099262" data-layer="wall" />
+<line x1="1587.627" y1="8083.955" x2="1373.966" y2="3846.344" class="ifc-wall" data-element-id="480263" data-element-name="Mur de base:MB-20cm:8985765" data-layer="wall" />
+<line x1="1230.366" y1="799.710" x2="1829.106" y2="769.522" class="ifc-wall" data-element-id="37158" data-element-name="Mur de base:MB-20cm:950623" data-layer="wall" />
+<line x1="4763.382" y1="631.587" x2="4802.408" y2="1405.604" class="ifc-wall" data-element-id="37196" data-element-name="Mur de base:MB-20cm:950704" data-layer="wall" />
+<line x1="5169.045" y1="8478.615" x2="4629.730" y2="8505.807" class="ifc-wall" data-element-id="37223" data-element-name="Mur de base:MB-25cm-Anthracite:950771" data-layer="wall" />
+<line x1="4110.229" y1="3087.594" x2="3730.711" y2="3106.729" class="ifc-wall" data-element-id="51640" data-element-name="Mur de base:MB-20cm:959540" data-layer="wall" />
+<line x1="3903.550" y1="2761.588" x2="3085.590" y2="2802.829" class="ifc-wall" data-element-id="51663" data-element-name="Mur de base:MB-20cm:959541" data-layer="wall" />
+<line x1="4099.738" y1="3078.110" x2="4074.258" y2="2572.752" class="ifc-wall" data-element-id="51723" data-element-name="Mur de base:MB-20cm:959542" data-layer="wall" />
+<line x1="3909.979" y1="3087.678" x2="3894.067" y2="2772.078" class="ifc-wall" data-element-id="51746" data-element-name="Mur de base:MB-20cm:959543" data-layer="wall" />
+<line x1="5048.735" y1="7085.406" x2="3970.105" y2="7139.791" class="ifc-wall" data-element-id="51769" data-element-name="Mur de base:MB-20cm:959544" data-layer="wall" />
+<line x1="4320.165" y1="7132.153" x2="4337.085" y2="7467.727" class="ifc-wall" data-element-id="51792" data-element-name="Mur de base:MB-20cm:959546" data-layer="wall" />
+<line x1="4130.406" y1="7141.721" x2="4147.326" y2="7477.295" class="ifc-wall" data-element-id="51815" data-element-name="Mur de base:MB-20cm:959547" data-layer="wall" />
+<line x1="4806.547" y1="7941.688" x2="4596.813" y2="7952.263" class="ifc-wall" data-element-id="124279" data-element-name="Mur de base:MB-20cm:1038669" data-layer="wall" />
+<line x1="3365.705" y1="8557.024" x2="3348.080" y2="8207.468" class="ifc-wall" data-element-id="124367" data-element-name="Mur de base:MA-20cm:1038750" data-layer="wall" />
+<line x1="3959.614" y1="7130.307" x2="3985.095" y2="7635.665" class="ifc-wall" data-element-id="124405" data-element-name="Mur de base:MB-20cm:1038894" data-layer="wall" />
+<line x1="4798.087" y1="7773.901" x2="5112.688" y2="7758.039" class="ifc-wall" data-element-id="124464" data-element-name="Mur de base:MB-20cm:1039277" data-layer="wall" />
+<line x1="4265.276" y1="3064.757" x2="4874.502" y2="3034.040" class="ifc-wall" data-element-id="124955" data-element-name="Mur de base:MA-20cm:1040102" data-layer="wall" />
+<line x1="4274.760" y1="3054.266" x2="4263.178" y2="2824.558" class="ifc-wall" data-element-id="124978" data-element-name="Mur de base:MA-20cm:1040251" data-layer="wall" />
+<line x1="4260.526" y1="2573.373" x2="4849.777" y2="2543.663" class="ifc-wall" data-element-id="125019" data-element-name="Mur de base:MA-20cm:1040334" data-layer="wall" />
+<line x1="3092.018" y1="3128.919" x2="3067.545" y2="2643.536" class="ifc-wall" data-element-id="125042" data-element-name="Mur de base:MB-20cm:1040552" data-layer="wall" />
+<line x1="3094.452" y1="2978.606" x2="3722.654" y2="2946.932" class="ifc-wall" data-element-id="125065" data-element-name="Mur de base:MB-20cm:1040723" data-layer="wall" />
+<line x1="3740.195" y1="3096.238" x2="3724.282" y2="2780.639" class="ifc-wall" data-element-id="125106" data-element-name="Mur de base:MB-20cm:1040835" data-layer="wall" />
+<line x1="3504.553" y1="2771.692" x2="3497.000" y2="2621.883" class="ifc-wall" data-element-id="125147" data-element-name="Mur de base:MB-20cm:1040930" data-layer="wall" />
+<line x1="4796.056" y1="7932.204" x2="4754.613" y2="7110.248" class="ifc-wall" data-element-id="125188" data-element-name="Mur de base:MB-20cm:1041233" data-layer="wall" />
+<line x1="3958.993" y1="7316.575" x2="3314.812" y2="7349.054" class="ifc-wall" data-element-id="136284" data-element-name="Mur de base:MB-20cm:1061151" data-layer="wall" />
+<line x1="2219.114" y1="759.870" x2="2208.036" y2="540.149" class="ifc-wall" data-element-id="175289" data-element-name="Mur de base:MB-20cm:1267947" data-layer="wall" />
+<line x1="5240.382" y1="6815.413" x2="5260.777" y2="7219.899" class="ifc-wall" data-element-id="175312" data-element-name="Mur de base:MB-20cm:1268665" data-layer="wall" />
+<line x1="5250.286" y1="7210.415" x2="5105.470" y2="7217.717" class="ifc-wall" data-element-id="175335" data-element-name="Mur de base:MB-20cm:1268666" data-layer="wall" />
+<line x1="2321.611" y1="8799.909" x2="2860.926" y2="8772.717" class="ifc-wall" data-element-id="175358" data-element-name="Mur de base:MB-20cm:1268840" data-layer="wall" />
+<line x1="2850.435" y1="8763.233" x2="2842.630" y2="8608.429" class="ifc-wall" data-element-id="175381" data-element-name="Mur de base:MB-20cm:1268903" data-layer="wall" />
+<line x1="1839.009" y1="568.768" x2="2198.552" y2="550.640" class="ifc-wall" data-element-id="175404" data-element-name="Mur de base:MB-20cm:1269019" data-layer="wall" />
+<line x1="4131.097" y1="453.201" x2="3746.586" y2="472.588" class="ifc-wall" data-element-id="188633" data-element-name="Mur de base:MB-20cm-RAL 7021:1434426" data-layer="wall" />
+<line x1="4121.614" y1="463.691" x2="4131.685" y2="663.438" class="ifc-wall" data-element-id="188656" data-element-name="Mur de base:MB-20cm-RAL 7021:1434427" data-layer="wall" />
+<line x1="4534.892" y1="7121.327" x2="4551.812" y2="7456.900" class="ifc-wall" data-element-id="196868" data-element-name="Mur de base:MB-20cm:1521171" data-layer="wall" />
+<line x1="4560.372" y1="7626.685" x2="4573.163" y2="7880.362" class="ifc-wall" data-element-id="198723" data-element-name="Mur de base:MB-20cm:1570936" data-layer="wall" />
+<line x1="3967.050" y1="7476.372" x2="3322.869" y2="7508.851" class="ifc-wall" data-element-id="198860" data-element-name="Mur de base:MB-20cm:1570941" data-layer="wall" />
+<line x1="5131.235" y1="7927.320" x2="5154.903" y2="8396.723" class="ifc-wall" data-element-id="215781" data-element-name="Mur de base:MB-20cm:1836387" data-layer="wall" />
+<line x1="3950.131" y1="7140.798" x2="3285.974" y2="7174.285" class="ifc-wall" data-element-id="215804" data-element-name="Mur de base:MB-20cm:1836391" data-layer="wall" />
+<line x1="827.370" y1="4374.539" x2="933.874" y2="6486.856" class="ifc-wall" data-element-id="216003" data-element-name="Mur de base:MB-25cm-Anthracite:1926931" data-layer="wall" />
+<line x1="5090.447" y1="7118.347" x2="5128.718" y2="7877.383" class="ifc-wall" data-element-id="216847" data-element-name="Mur de base:MB-20cm:2007719" data-layer="wall" />
+<line x1="5063.254" y1="6579.032" x2="5087.929" y2="7068.411" class="ifc-wall" data-element-id="216870" data-element-name="Mur de base:MB-20cm:2007888" data-layer="wall" />
+<line x1="5029.264" y1="5904.889" x2="5060.737" y2="6529.096" class="ifc-wall" data-element-id="216912" data-element-name="Mur de base:MB-20cm:2007979" data-layer="wall" />
+<line x1="4988.475" y1="5095.916" x2="5026.746" y2="5854.952" class="ifc-wall" data-element-id="216935" data-element-name="Mur de base:MB-20cm:2008098" data-layer="wall" />
+<line x1="4954.485" y1="4421.773" x2="4985.957" y2="5045.980" class="ifc-wall" data-element-id="216958" data-element-name="Mur de base:MB-20cm:2008170" data-layer="wall" />
+<line x1="4845.715" y1="2264.513" x2="4870.390" y2="2753.891" class="ifc-wall" data-element-id="216981" data-element-name="Mur de base:MB-20cm:2008350" data-layer="wall" />
+<line x1="4804.926" y1="1455.541" x2="4843.197" y2="2214.576" class="ifc-wall" data-element-id="217004" data-element-name="Mur de base:MB-20cm:2008371" data-layer="wall" />
+<line x1="4927.292" y1="3882.458" x2="4951.967" y2="4371.836" class="ifc-wall" data-element-id="217027" data-element-name="Mur de base:MB-20cm:2008997" data-layer="wall" />
+<line x1="4900.100" y1="3343.143" x2="4924.774" y2="3832.521" class="ifc-wall" data-element-id="217050" data-element-name="Mur de base:MB-20cm:2009195" data-layer="wall" />
+<line x1="4872.907" y1="2803.828" x2="4897.582" y2="3293.206" class="ifc-wall" data-element-id="217073" data-element-name="Mur de base:MB-20cm:2009324" data-layer="wall" />
+<line x1="4629.730" y1="8505.807" x2="3820.757" y2="8546.596" class="ifc-wall" data-element-id="217096" data-element-name="Mur de base:MB-25cm-Anthracite:2009505" data-layer="wall" />
+<line x1="4578.198" y1="7980.236" x2="4601.614" y2="8444.646" class="ifc-wall" data-element-id="217130" data-element-name="Mur de base:MB-20cm:2009678" data-layer="wall" />
+<line x1="3820.757" y1="8546.596" x2="3031.760" y2="8586.378" class="ifc-wall" data-element-id="217168" data-element-name="Mur de base:MB-25cm-Anthracite:2009741" data-layer="wall" />
+<line x1="2222.787" y1="8627.166" x2="1606.570" y2="8658.236" class="ifc-wall" data-element-id="217258" data-element-name="Mur de base:MB-25cm-Anthracite:2010043" data-layer="wall" />
+<line x1="4064.774" y1="2583.243" x2="3057.054" y2="2634.052" class="ifc-wall" data-element-id="217294" data-element-name="Mur de base:MB-20cm:2034014" data-layer="wall" />
+<line x1="5085.075" y1="6813.231" x2="5249.866" y2="6804.922" class="ifc-wall" data-element-id="217702" data-element-name="Mur de base:MB-20cm:2043588" data-layer="wall" />
+<line x1="3577.410" y1="3124.471" x2="3569.353" y2="2964.674" class="ifc-wall" data-element-id="217738" data-element-name="Mur de base:MB-20cm:2050255" data-layer="wall" />
+<line x1="3566.919" y1="3114.987" x2="3082.535" y2="3139.410" class="ifc-wall" data-element-id="217761" data-element-name="Mur de base:MB-20cm:2050417" data-layer="wall" />
+<line x1="4541.321" y1="7447.417" x2="4346.568" y2="7457.236" class="ifc-wall" data-element-id="219645" data-element-name="Mur de base:MB-20cm:2259686" data-layer="wall" />
+<line x1="5145.419" y1="8407.214" x2="5245.292" y2="8402.179" class="ifc-wall" data-element-id="225582" data-element-name="Mur de base:MB-20cm:2791097" data-layer="wall" />
+<line x1="5234.801" y1="8392.695" x2="5231.780" y2="8332.771" class="ifc-wall" data-element-id="225605" data-element-name="Mur de base:MB-20cm:2791103" data-layer="wall" />
+<line x1="5241.264" y1="8322.280" x2="5161.365" y2="8326.309" class="ifc-wall" data-element-id="225628" data-element-name="Mur de base:MB-20cm:2791109" data-layer="wall" />
+<line x1="5138.201" y1="7866.892" x2="5218.100" y2="7862.864" class="ifc-wall" data-element-id="225651" data-element-name="Mur de base:MB-20cm:2791119" data-layer="wall" />
+<line x1="5207.609" y1="7853.380" x2="5204.588" y2="7793.456" class="ifc-wall" data-element-id="225674" data-element-name="Mur de base:MB-20cm:2791121" data-layer="wall" />
+<line x1="5214.071" y1="7782.965" x2="5134.173" y2="7786.994" class="ifc-wall" data-element-id="225697" data-element-name="Mur de base:MB-20cm:2791123" data-layer="wall" />
+<line x1="4110.229" y1="3087.594" x2="3900.496" y2="3098.168" class="ifc-wall" data-element-id="236413" data-element-name="Mur de base:MB-20cm:3279638" data-layer="wall" />
+<line x1="3903.550" y1="2761.588" x2="4093.309" y2="2752.020" class="ifc-wall" data-element-id="236436" data-element-name="Mur de base:MB-20cm:3279677" data-layer="wall" />
+<line x1="4083.826" y1="2762.511" x2="4099.738" y2="3078.110" class="ifc-wall" data-element-id="236459" data-element-name="Mur de base:MB-20cm:3279705" data-layer="wall" />
+<line x1="3893.060" y1="2752.104" x2="3909.979" y2="3087.678" class="ifc-wall" data-element-id="236482" data-element-name="Mur de base:MB-20cm:3279736" data-layer="wall" />
+<line x1="4329.649" y1="7121.662" x2="4119.915" y2="7132.237" class="ifc-wall" data-element-id="236505" data-element-name="Mur de base:MB-20cm:3279936" data-layer="wall" />
+<line x1="4130.406" y1="7141.721" x2="4147.326" y2="7477.295" class="ifc-wall" data-element-id="236528" data-element-name="Mur de base:MB-20cm:3279971" data-layer="wall" />
+<line x1="4156.809" y1="7466.804" x2="4346.568" y2="7457.236" class="ifc-wall" data-element-id="236551" data-element-name="Mur de base:MB-20cm:3280032" data-layer="wall" />
+<line x1="4336.077" y1="7447.752" x2="4320.165" y2="7132.153" class="ifc-wall" data-element-id="236574" data-element-name="Mur de base:MB-20cm:3280117" data-layer="wall" />
+<line x1="4261.667" y1="2794.596" x2="4250.035" y2="2563.889" class="ifc-wall" data-element-id="236792" data-element-name="Mur de base:MA-20cm:3369222" data-layer="wall" />
+<line x1="153.227" y1="4408.530" x2="238.832" y2="6106.373" class="ifc-wall" data-element-id="242071" data-element-name="Mur de base:MB-25cm-Anthracite:3413237" data-layer="wall" />
+<line x1="1289.703" y1="3863.109" x2="1364.608" y2="3859.332" class="ifc-wall" data-element-id="242094" data-element-name="Mur de base:MB-25cm:3413292" data-layer="wall" />
+<line x1="1255.712" y1="3188.965" x2="1330.617" y2="3185.189" class="ifc-wall" data-element-id="242160" data-element-name="Mur de base:MB-25cm:3507969" data-layer="wall" />
+<line x1="4273.669" y1="2834.042" x2="4633.212" y2="2815.913" class="ifc-wall" data-element-id="243293" data-element-name="Mur de base:MA-20cm:3557433" data-layer="wall" />
+<line x1="4622.721" y1="2806.430" x2="4610.585" y2="2565.735" class="ifc-wall" data-element-id="243316" data-element-name="Mur de base:MA-20cm:3557435" data-layer="wall" />
+<line x1="3736.095" y1="463.104" x2="3747.173" y2="682.825" class="ifc-wall" data-element-id="244028" data-element-name="Mur de base:MB-20cm-RAL 7021:3989968" data-layer="wall" />
+<line x1="822.691" y1="4529.972" x2="173.516" y2="4562.704" class="ifc-wall" data-element-id="248410" data-element-name="Mur de base:MB-20cm:4260926" data-layer="wall" />
+<line x1="1341.234" y1="3197.169" x2="1219.875" y2="790.227" class="ifc-wall" data-element-id="248451" data-element-name="Mur de base:MB-20cm:4261031" data-layer="wall" />
+<line x1="2228.598" y1="749.379" x2="3736.682" y2="673.341" class="ifc-wall" data-element-id="255621" data-element-name="Mur de base:MB-20cm:5099053" data-layer="wall" />
+<line x1="2331.095" y1="8789.418" x2="2323.290" y2="8634.615" class="ifc-wall" data-element-id="255644" data-element-name="Mur de base:MB-20cm:5099260" data-layer="wall" />
+<line x1="4141.169" y1="652.947" x2="4772.866" y2="621.096" class="ifc-wall" data-element-id="256142" data-element-name="Mur de base:MB-20cm:5099285" data-layer="wall" />
+<line x1="1839.596" y1="779.006" x2="1828.518" y2="559.285" class="ifc-wall" data-element-id="256455" data-element-name="Mur de base:MB-20cm:5124639" data-layer="wall" />
+<line x1="4569.856" y1="7616.194" x2="3975.611" y2="7646.156" class="ifc-wall" data-element-id="296019" data-element-name="Mur de base:MB-20cm:5477670" data-layer="wall" />
+<line x1="3340.527" y1="8057.658" x2="3296.465" y2="7183.769" class="ifc-wall" data-element-id="310573" data-element-name="Mur de base:MA-20cm:5750667" data-layer="wall" />
+<line x1="3348.080" y1="8207.468" x2="3340.527" y2="8057.658" class="ifc-wall" data-element-id="310622" data-element-name="Mur de base:MA-20cm:5750717" data-layer="wall" />
+<line x1="1747.760" y1="8638.601" x2="1718.956" y2="8067.321" class="ifc-wall" data-element-id="312965" data-element-name="Mur de base:MB-20cm:5860178" data-layer="wall" />
+<line x1="1709.473" y1="8077.812" x2="1577.640" y2="8084.459" class="ifc-wall" data-element-id="312988" data-element-name="Mur de base:MB-20cm:5860202" data-layer="wall" />
+<line x1="2687.511" y1="716.228" x2="2664.851" y2="266.799" class="ifc-wall" data-element-id="424049" data-element-name="Mur de base:MB-20cm:7204801" data-layer="wall" />
+<line x1="2195.447" y1="290.466" x2="2208.036" y2="540.149" class="ifc-wall" data-element-id="424083" data-element-name="Mur de base:MB-20cm:7204931" data-layer="wall" />
+<line x1="2124.528" y1="274.017" x2="2129.061" y2="363.903" class="ifc-wall" data-element-id="441387" data-element-name="Mur de base:MB-20cm:7614085" data-layer="wall" />
+<line x1="2138.544" y1="353.412" x2="2188.481" y2="350.894" class="ifc-wall" data-element-id="441410" data-element-name="Mur de base:MB-20cm:7614086" data-layer="wall" />
+<line x1="2747.351" y1="512.957" x2="2741.308" y2="393.109" class="ifc-wall" data-element-id="441433" data-element-name="Mur de base:MB-20cm:7614100" data-layer="wall" />
+<line x1="2736.860" y1="503.473" x2="2686.923" y2="505.991" class="ifc-wall" data-element-id="441456" data-element-name="Mur de base:MB-20cm:7614101" data-layer="wall" />
+<line x1="2674.334" y1="256.308" x2="2135.019" y2="283.500" class="ifc-wall" data-element-id="441522" data-element-name="Mur de base:MB-20cm:7614130" data-layer="wall" />
+<line x1="2731.824" y1="403.600" x2="2681.888" y2="406.118" class="ifc-wall" data-element-id="441545" data-element-name="Mur de base:MB-20cm:7614133" data-layer="wall" />
+</g>
+<g id="doorGroup" data-layer="doors">
+</g>
+<g id="windowGroup" data-layer="windows">
+</g>
+<g id="labelGroup" data-layer="labels">
+<text x="3013.217" y="4312.767" class="ifc-space-label" data-space-id="25615">COMMUN</text>
+<text x="3013.217" y="4327.767" class="ifc-space-code" data-space-id="25615">34</text>
+<text x="2441.479" y="497.347" class="ifc-space-label" data-space-id="28268">Local Technique</text>
+<text x="2441.479" y="512.347" class="ifc-space-code" data-space-id="28268">S1-08-N</text>
+<text x="4627.097" y="2848.929" class="ifc-space-label" data-space-id="21661">Local Technique</text>
+<text x="4627.097" y="2863.929" class="ifc-space-code" data-space-id="21661">S1-06-N</text>
+<text x="3696.812" y="7457.666" class="ifc-space-label" data-space-id="25505">COMMUN</text>
+<text x="3696.812" y="7472.666" class="ifc-space-code" data-space-id="25505">33</text>
+<text x="4440.954" y="2685.342" class="ifc-space-label" data-space-id="26528">Local Télécom</text>
+<text x="4440.954" y="2700.342" class="ifc-space-code" data-space-id="26528">S1-07-N</text>
+<text x="3933.890" y="557.271" class="ifc-space-label" data-space-id="24378">VH</text>
+<text x="3933.890" y="572.271" class="ifc-space-code" data-space-id="24378">VH:1425251</text>
+<text x="2023.816" y="653.577" class="ifc-space-label" data-space-id="24322">VH</text>
+<text x="2023.816" y="668.577" class="ifc-space-code" data-space-id="24322">VH:1423894</text>
+<text x="3286.049" y="2701.614" class="ifc-space-label" data-space-id="21786">Sas</text>
+<text x="3286.049" y="2716.614" class="ifc-space-code" data-space-id="21786">C-S1-05-N</text>
+<text x="3986.915" y="2919.598" class="ifc-space-label" data-space-id="25661">COMMUN</text>
+<text x="3986.915" y="2934.598" class="ifc-space-code" data-space-id="25661">37</text>
+<text x="4233.242" y="7288.737" class="ifc-space-label" data-space-id="25647">COMMUN</text>
+<text x="4233.242" y="7303.737" class="ifc-space-code" data-space-id="25647">36</text>
+<text x="5177.668" y="7005.319" class="ifc-space-label" data-space-id="24393">VB</text>
+<text x="5177.668" y="7020.319" class="ifc-space-code" data-space-id="24393">VB:1425253</text>
+<text x="3817.131" y="2928.158" class="ifc-space-label" data-space-id="21873">Sas</text>
+<text x="3817.131" y="2943.158" class="ifc-space-code" data-space-id="21873">C-S1-03-N</text>
+<text x="5193.341" y="8358.747" class="ifc-space-label" data-space-id="24776">VB</text>
+<text x="5193.341" y="8373.747" class="ifc-space-code" data-space-id="24776">VB:2812811</text>
+<text x="5166.149" y="7819.432" class="ifc-space-label" data-space-id="24761">VH</text>
+<text x="5166.149" y="7834.432" class="ifc-space-code" data-space-id="24761">VH:2812809</text>
+</g>
+</svg>

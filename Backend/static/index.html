@@ -1,54 +1,52 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <title>Jalon 1 — Insights bruts</title>
-  <style>
-    body { font-family: sans-serif; margin: 1.5rem; background: #0f172a; color: #e2e8f0; }
-    h1 { font-size: 1.2rem; }
-    table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
-    th, td { border-bottom: 1px solid #334155; padding: 0.4rem 0.5rem; text-align: left; vertical-align: top; }
-    .high { color: #fca5a5; }
-    .medium { color: #fdba74; }
-    .low { color: #86efac; }
-    code { color: #93c5fd; }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173e35"><title>Copilote des espaces</title>
+<link rel="stylesheet" href="/static/style.css"><script defer src="/static/app.js"></script>
 </head>
 <body>
-  <h1>Jalon 1 — GET /api/insights/raw</h1>
-  <p>Vérification minimale. Période par défaut = jeu de données IoT.</p>
-  <pre id="summary">Chargement…</pre>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th><th>Sévérité</th><th>Lieu</th><th>Début</th><th>Durée</th><th>kWh</th><th>Preuve</th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
-  <script>
-    fetch("/api/insights/raw?from=2026-01-12&to=2026-01-18&limit=50")
-      .then((r) => r.json())
-      .then((data) => {
-        document.getElementById("summary").textContent = JSON.stringify(data.summary, null, 2);
-        const body = document.getElementById("rows");
-        for (const a of data.anomalies) {
-          const place = a.room ? `${a.room_name || ""} (${a.room})` : `${a.zone} / ${a.floor}`;
-          body.insertAdjacentHTML("beforeend", `
-            <tr>
-              <td><code>${a.type}</code></td>
-              <td class="${a.severity}">${a.severity}</td>
-              <td>${place}<br>${a.floor || ""} ${a.zone || ""}</td>
-              <td>${a.start_at}</td>
-              <td>${a.duration_hours} h</td>
-              <td>${a.energy_kwh}</td>
-              <td>${a.evidence}</td>
-            </tr>`);
-        }
-      })
-      .catch((err) => {
-        document.getElementById("summary").textContent = String(err);
-      });
-  </script>
-</body>
-</html>
+<aside class="sidebar">
+<a class="brand" href="/" aria-label="Accueil Campus Dijon"><span class="brand-icon" aria-hidden="true">▥</span></a>
+<div class="workspace"><span class="workspace-icon">▥</span><div><strong>Campus Dijon</strong><small>ESEO × ESTP</small></div><span class="live-dot"></span></div>
+<p class="nav-label">PILOTAGE DES ESPACES</p>
+<nav aria-label="Navigation principale">
+<button class="nav active" data-view="overview"><span>◫</span> Vue d’ensemble</button>
+<button class="nav" data-view="spaces"><span>▦</span> Jumeau des espaces</button>
+<a class="nav" href="/map"><span>⌖</span> Plan interactif</a>
+<button class="nav" data-view="anomalies"><span>⌁</span> Anomalies <b id="nav-count">—</b></button>
+<button class="nav" data-view="history"><span>↺</span> Journal des actions</button>
+</nav>
+<div class="side-note"><span>✧</span><strong>Des données aux décisions.</strong><p>Votre bâtiment a beaucoup à dire.<br>Vos données vous aident à agir.</p><button id="method-button">Comprendre les données ↗</button></div>
+<div class="profile"><span class="avatar">FM</span><div><strong>Facility Manager</strong><small>Espace de démonstration</small></div></div>
+</aside>
+<main>
+<header><div class="breadcrumb">Campus Dijon <span>/</span> <strong id="breadcrumb">Vue d’ensemble</strong></div><div class="header-status"><span class="live-dot"></span> Données historiques <span class="header-divider">|</span> BIM + IoT</div></header>
+<div class="content">
+<div class="page-heading"><div><p class="eyebrow">LE COPILOTE DE VOTRE BÂTIMENT</p><h1 id="page-title">Moins de gaspillage.<br>Plus de potentiel.</h1><p class="subtitle" id="page-subtitle">Comprenez vos espaces. Transformez les signaux en actions.</p></div><button class="button secondary" id="export-button">↓ Exporter le bilan</button></div>
+<div class="filterbar"><div class="date-group"><span>◷</span><label>Du <input type="date" id="from" aria-label="Date de début"></label><span>→</span><label>Au <input type="date" id="to" aria-label="Date de fin"></label></div><label class="hours"><input type="checkbox" id="business"> Heures ouvrées uniquement</label><button class="button secondary compact" id="refresh">Actualiser ↻</button></div>
+<div id="error" class="error" role="alert" hidden></div>
+<div id="loading" class="loading" role="status">Analyse des données du campus…</div>
+<section id="overview" class="view" hidden>
+<div class="kpis">
+<article class="kpi"><div class="kpi-label">Utilisation des espaces <span>◫</span></div><div class="kpi-value" id="kpi-use">—</div><div class="kpi-caption">Présence observée · lun–ven, 8h–18h</div></article>
+<article class="kpi"><div class="kpi-label">Énergie à investiguer <span>↯</span></div><div class="kpi-value" id="kpi-energy">—</div><div class="kpi-caption">Consommation pendant les absences</div></article>
+<article class="kpi"><div class="kpi-label">Anomalies détectées <span>⌁</span></div><div class="kpi-value" id="kpi-anomalies">—</div><div class="kpi-caption" id="kpi-rooms">—</div></article>
+<article class="kpi highlight"><div class="kpi-label">Potentiel brut estimé <span>↗</span></div><div class="kpi-value" id="kpi-savings">—</div><div class="kpi-caption" id="price-caption">Sur la période · estimation indicative</div></article>
+</div>
+<div class="analytics-grid">
+<article class="panel chart-panel"><div class="panel-heading"><div><p class="eyebrow">LES SIGNAUX DU CAMPUS</p><h2>Présence & énergie</h2></div><span class="subtle-pill" id="chart-period">Vue horaire</span></div><div class="legend"><span><i class="legend-dot green"></i>Présence (%)</span><span><i class="legend-dot amber"></i>Énergie (kWh)</span></div><div id="chart" class="chart"></div><p class="chart-foot">Présence : part des pièces observées occupées. Énergie : compteurs CVC et éclairage sélectionnés.</p></article>
+<article class="panel floor-panel"><div class="panel-heading"><div><p class="eyebrow">JUMEAU DE GESTION</p><h2>Un campus, plusieurs rythmes.</h2></div></div><div id="floor-bars"></div><div class="floor-foot"><span class="live-dot"></span><span id="floor-caption">Espaces connectés à la maquette BIM</span></div></article>
+</div>
+<section class="copilot-section"><div class="section-heading"><div><div class="eyebrow"><span class="spark">✧</span> COPILOTE DÉCISIONNEL</div><h2>Les prochaines bonnes décisions.</h2><p>Des recommandations concrètes, ancrées dans vos données.</p></div><div class="model-controls"><select id="llm-model" aria-label="Modèle Ollama" hidden></select><button class="button primary" id="generate">✧ Générer les recommandations</button></div></div><div class="ai-status" id="ai-status">Le copilote est prêt. Générez une analyse de la période sélectionnée.</div><div id="actions" class="action-grid"><div class="action-placeholder"><span>✧</span><h3>Votre plan d’action commence ici.</h3><p>Le copilote analyse les anomalies et propose jusqu’à trois actions documentées.</p></div></div></section>
+<section class="panel anomaly-panel"><div class="panel-heading"><div><p class="eyebrow">À SURVEILLER</p><h2>Les signaux qui méritent votre attention.</h2></div><button class="text-button" data-go="anomalies">Toutes les anomalies ↗</button></div><div id="preview-table" class="table-scroll"></div></section>
+</section>
+<section id="spaces" class="view" hidden><div class="section-heading"><div><h2>Le bâtiment, espace par espace.</h2><p>Surface BIM, capacité estimée et utilisation réelle sur la période.</p></div><input class="search" id="room-search" placeholder="Rechercher un espace…" aria-label="Rechercher un espace"></div><div class="info-note">Capacité de travail estimée : <span id="capacity-rule">4</span> m²/personne. Les capteurs indiquent la présence, sans compter les personnes. Les données manquantes restent inconnues.</div><div class="panel table-scroll" id="rooms-table"></div></section>
+<section id="anomalies" class="view" hidden><div class="section-heading"><div><h2>Des anomalies, avec leurs preuves.</h2><p>Absence observée et consommation active pendant au moins deux heures consécutives.</p></div><select id="type-filter" aria-label="Filtrer les anomalies"><option value="all">Tous les équipements</option><option value="empty_room_hvac">CVC · pièce</option><option value="empty_zone_hvac">CVC · zone</option><option value="empty_room_lighting">Éclairage · pièce</option><option value="empty_zone_lighting">Éclairage · zone</option></select></div><div class="info-note" id="anomaly-info"></div><div class="panel table-scroll" id="anomaly-table"></div></section>
+<section id="history" class="view" hidden><div class="section-heading"><div><h2>Une trace pour chaque décision.</h2><p>Commandes simulées et enregistrées. Aucun équipement réel n’est piloté.</p></div><span class="subtle-pill">Simulation BOS</span></div><div id="history-list" class="history-list"></div></section>
+<footer><span>CAMPUS DIJON</span><span>Jumeau de gestion <i>·</i> SQL + IoT + BIM + IA</span></footer>
+</div>
+</main>
+<dialog id="detail"><div class="dialog-heading"><span class="eyebrow">DONNÉES & TRANSPARENCE</span><button class="close" id="close-dialog" aria-label="Fermer">×</button></div><div id="detail-content"></div></dialog>
+<div id="toast" role="status" hidden></div>
+</body></html>

@@ -1,73 +1,104 @@
 from __future__ import annotations
-
 from pathlib import Path
-
-from fastapi import FastAPI, Query
-from fastapi.responses import FileResponse
+import sqlite3
+from fastapi import FastAPI, Query, Depends, HTTPException, Request
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-
-from .config import (
-    DB_PATH,
-    DEFAULT_LIMIT,
-    MIN_DURATION_HOURS,
-    MIN_HVAC_KWH_PER_HOUR,
-    MIN_LIGHTING_KWH_PER_HOUR,
-)
+from .config import DB_PATH, DEFAULT_LIMIT, MIN_DURATION_HOURS, MIN_HVAC_KWH_PER_HOUR, MIN_LIGHTING_KWH_PER_HOUR
 from .insights import detect_anomalies
+from .dashboard import dashboard, metadata
+from .smart import smart, apply_action, history, llm_status
 
-STATIC_DIR = Path(__file__).resolve().parent / "static"
-
-app = FastAPI(
-    title="Copilote d'Optimisation des Espaces",
-    description="Jalon 1 — agrégation BOS et API brute d'anomalies",
-    version="0.1.0",
-)
-
-
-@app.get("/api/health")
-def health() -> dict:
-    return {
-        "status": "ok",
-        "database": str(DB_PATH),
-        "database_exists": DB_PATH.exists(),
-        "jalon": 1,
-    }
+BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_DIR = Path(__file__).resolve().parent / 'static'
+EXPORTS_DIR = BASE_DIR / 'exports'
+app = FastAPI(title='Copilote des espaces', description='BIM × IoT · Agrégation SQL, IA décisionnelle et commandes simulées',version='1.0.0')
 
 
-@app.get("/api/insights/raw")
-def insights_raw(
-    date_from: str | None = Query(default=None, alias="from", description="Début (YYYY-MM-DD)"),
-    date_to: str | None = Query(default=None, alias="to", description="Fin (YYYY-MM-DD, incluse)"),
-    min_hours: int = Query(default=MIN_DURATION_HOURS, ge=1, le=48),
-    min_hvac_kwh: float = Query(default=MIN_HVAC_KWH_PER_HOUR, ge=0),
-    min_lighting_kwh: float = Query(default=MIN_LIGHTING_KWH_PER_HOUR, ge=0),
-    types: str | None = Query(
-        default=None,
-        description="Types séparés par des virgules: empty_room_hvac,empty_zone_hvac,empty_room_lighting",
-    ),
-    limit: int = Query(default=DEFAULT_LIMIT, ge=1, le=1000),
-    business_hours_only: bool = Query(default=False),
-) -> dict:
-    parsed_types = [t.strip() for t in types.split(",")] if types else None
-    return detect_anomalies(
-        date_from=date_from,
-        date_to=date_to,
-        min_hours=min_hours,
-        min_hvac_kwh=min_hvac_kwh,
-        min_lighting_kwh=min_lighting_kwh,
-        types=parsed_types,
-        limit=limit,
-        business_hours_only=business_hours_only,
-    )
+@app.exception_handler(ValueError)
+async def invalid_input(request: Request, exc: ValueError):
+    return JSONResponse(status_code=422,content={'detail':str(exc)})
 
 
-if STATIC_DIR.exists():
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+@app.exception_handler(sqlite3.OperationalError)
+async def database_error(request: Request, exc: sqlite3.OperationalError):
+    return JSONResponse(status_code=503,content={'detail':'Base indisponible. Lancez python -m Backend.etl avant de démarrer le serveur.'})
 
 
-@app.get("/")
+def ready():
+    if not DB_PATH.exists():
+        raise HTTPException(503,'Base absente. Lancez python -m Backend.etl.')
+
+
+def filters(
+    date_from: str | None = Query(None,alias='from'),
+    date_to: str | None = Query(None,alias='to'),
+    min_hours: int = Query(MIN_DURATION_HOURS,ge=1,le=48),
+    min_hvac_kwh: float = Query(MIN_HVAC_KWH_PER_HOUR,gt=0),
+    min_lighting_kwh: float = Query(MIN_LIGHTING_KWH_PER_HOUR,gt=0),
+    types: str | None = None,
+    limit: int = Query(DEFAULT_LIMIT,ge=1,le=1000),
+    business_hours_only: bool = False,
+):
+    ready()
+    return dict(date_from=date_from,date_to=date_to,min_hours=min_hours,min_hvac_kwh=min_hvac_kwh,
+                min_lighting_kwh=min_lighting_kwh,types=[t.strip() for t in types.split(',')] if types else None,
+                limit=limit,business_hours_only=business_hours_only)
+
+
+@app.get('/api/llm/status')
+def provider_status():
+    return llm_status()
+
+
+@app.get('/api/health')
+def health():
+    return {'status':'ok','database_exists':DB_PATH.exists(),'milestones':[1,2,3]}
+
+
+@app.get('/api/metadata',dependencies=[Depends(ready)])
+def meta():
+    return metadata()
+
+
+@app.get('/api/dashboard',dependencies=[Depends(ready)])
+def overview(date_from: str | None = Query(None,alias='from'),date_to: str | None = Query(None,alias='to')):
+    return dashboard(date_from,date_to)
+
+
+@app.get('/api/insights/raw')
+def raw(options: dict = Depends(filters)):
+    return detect_anomalies(**options)
+
+
+@app.get('/api/insights/smart')
+def recommendations(options: dict = Depends(filters), model: str | None = Query(None)):
+    return smart(detect_anomalies(**options), model_override=model)
+
+
+@app.post('/api/actions/{action_id}/apply',dependencies=[Depends(ready)])
+def simulate(action_id: str):
+    try:
+        return apply_action(action_id)
+    except KeyError:
+        raise HTTPException(404,'Recommandation inconnue. Générez les cartes avant de les appliquer.')
+
+
+@app.get('/api/actions/history',dependencies=[Depends(ready)])
+def commands():
+    return {'commands':history()}
+
+
+app.mount('/static',StaticFiles(directory=STATIC_DIR),name='static')
+if EXPORTS_DIR.exists():
+    app.mount('/exports',StaticFiles(directory=EXPORTS_DIR),name='exports')
+
+
+@app.get('/')
 def index():
-    index_file = STATIC_DIR / "index.html"
-    if index_file.exists():
-        return FileResponse(index_file)
-    return {"message": "GET /api/insights/raw"}
+    return FileResponse(STATIC_DIR/'index.html')
+
+
+@app.get('/map')
+def map_view():
+    return FileResponse(STATIC_DIR/'map.html')

@@ -16,7 +16,7 @@ from .db import connect, init_db
 
 ROOM_RE = re.compile(r"(\d{2}-\d{2}[aA]?-[NS])")
 IFC_SPACE_RE = re.compile(
-    r"IFCSPACE\('[^']*',#[0-9]+,'([^']*)',[^,]*,[^,]*,#[0-9]+,#[0-9]+,('(?:[^']*)'|\$)"
+    r"IFCSPACE\('[^']*',#[0-9]+,'([^']*)',[^,]*,[^,]*,#[0-9]+,#[0-9]+,('(?:[^']|'')*'|\$)"
 )
 
 FLOOR_FROM_NAME = [
@@ -49,7 +49,7 @@ LIGHTING_NAME_RE = re.compile(r"ECLAIRAGE|eclairage|\xe9clairage", re.I)
 
 def decode_ifc(text: str) -> str:
     return (
-        text.replace(r"\X\E9", "é")
+        text.replace("''", "'").replace(r"\X\E9", "é")
         .replace(r"\X\E8", "è")
         .replace(r"\X\EA", "ê")
         .replace(r"\X\E0", "à")
@@ -146,6 +146,14 @@ def load_rooms(conn: sqlite3.Connection) -> None:
         rows,
     )
     conn.commit()
+    from .bim import geometry
+    footprints = geometry(IFC_PATH) if IFC_PATH.exists() else {}
+    conn.executemany(
+        "UPDATE rooms SET area_m2=?, capacity=?, capacity_source=? WHERE code=?",
+        [(*values, code) for code, values in footprints.items()],
+    )
+    conn.commit()
+    print(f"  {len(footprints)} surfaces IFC ; capacité estimée, non réglementaire")
     print(f"  {len(rows)} pièces")
 
 
@@ -178,6 +186,10 @@ def load_occupancy(conn: sqlite3.Connection) -> None:
 
 
 def scope_for(room: str | None, name: str) -> str | None:
+    # General distribution meters serve a zone even if the export points to
+    # the technical room hosting the meter. Do not attribute it to that room.
+    if re.search(r"D[ée]part G[ée]n[ée]ral (ECLAIRAGE|CVC|Ventilo)", name or "", re.I):
+        return "zone"
     if room:
         return "room"
     if re.search(r"Circuit Chaud|Circuit Froid|CTA ", name or "", re.I):
@@ -200,6 +212,7 @@ def load_energy(conn: sqlite3.Connection) -> None:
         "zone",
         "re2020Usage",
     ]
+    last_values = {}
     for path in energy_files():
         parts = []
         for chunk in pd.read_csv(path, sep=";", usecols=usecols, chunksize=250_000):
@@ -273,8 +286,15 @@ def load_energy(conn: sqlite3.Connection) -> None:
         df["timestamp"] = pd.to_datetime(df["timestamp"])
         df["value"] = pd.to_numeric(df["value"], errors="coerce")
         df = df.dropna(subset=["timestamp", "value"])
-        df = df.sort_values(["sensor id", "timestamp"])
+        df = df.sort_values(["sensor id", "timestamp"]).drop_duplicates(["sensor id", "timestamp"])
         df["delta"] = df.groupby("sensor id")["value"].diff().clip(lower=0).fillna(0)
+        # Carry each cumulative counter across monthly export boundaries.
+        first = df.groupby("sensor id", sort=False).head(1)
+        for idx, rec in first.iterrows():
+            previous = last_values.get(rec["sensor id"])
+            if previous is not None:
+                df.at[idx, "delta"] = max(0, float(rec["value"]) - previous)
+        last_values.update(df.groupby("sensor id")["value"].last().to_dict())
         df["hour"] = df["timestamp"].dt.floor("h").dt.strftime("%Y-%m-%d %H:%M:%S")
         df["room"] = df["extracted_room"].fillna("")
         df["floor"] = df["floor"].fillna("")

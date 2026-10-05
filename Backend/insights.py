@@ -32,7 +32,7 @@ def _parse_dt(value: str | None, fallback: datetime) -> datetime:
             return parsed
         except ValueError:
             continue
-    return fallback
+    raise ValueError("Date invalide : utilisez YYYY-MM-DD.")
 
 
 def _dataset_bounds(conn) -> tuple[datetime, datetime]:
@@ -85,6 +85,11 @@ def _enrich(row: dict, rooms: dict[str, dict]) -> dict:
             f"Toutes les pièces observées de {zone} / {floor} sont vides pendant "
             f"{duration} h alors que le CVC de zone consomme {wasted:.2f} kWh."
         )
+    elif kind == "empty_zone_lighting":
+        evidence = (
+            f"Toutes les pièces équipées et observées de {zone} / {floor} sont vides pendant "
+            f"{duration} h alors que l'éclairage de zone consomme {wasted:.2f} kWh."
+        )
     else:
         evidence = (
             f"La pièce {name} ({room_code}) est inoccupée pendant {duration} h "
@@ -92,7 +97,7 @@ def _enrich(row: dict, rooms: dict[str, dict]) -> dict:
         )
 
     return {
-        "id": f"{kind}:{room_code or zone}:{start.isoformat()}",
+        "id": f"{kind}:{room_code or zone}:{floor}:{start.isoformat()}",
         "type": kind,
         "severity": severity,
         "room": room_code,
@@ -122,7 +127,7 @@ def _balanced_sample(anomalies: list[dict], limit: int, wanted: set[str]) -> lis
     quota = max(1, limit // max(len(kinds), 1))
     picked: list[dict] = []
     seen: set[str] = set()
-    for kind in kinds:
+    for kind in sorted(kinds):
         for item in buckets[kind][:quota]:
             if item["id"] not in seen:
                 picked.append(item)
@@ -155,7 +160,7 @@ def detect_anomalies(
         if date_to and len(date_to.strip()) == 10:
             end = end + timedelta(days=1)
         if end <= start:
-            end = start + timedelta(days=1)
+            raise ValueError("La fin doit être postérieure au début.")
 
         params = {
             "date_from": start.strftime("%Y-%m-%d %H:%M:%S"),
@@ -165,12 +170,16 @@ def detect_anomalies(
             "min_lighting_kwh": float(min_lighting_kwh),
         }
 
-        wanted = set(types or ["empty_room_hvac", "empty_zone_hvac", "empty_room_lighting"])
+        wanted = set(types or ["empty_room_hvac", "empty_zone_hvac", "empty_room_lighting", "empty_zone_lighting"])
+        if not wanted <= {"empty_room_hvac", "empty_zone_hvac", "empty_room_lighting", "empty_zone_lighting"}:
+            raise ValueError("Type d’anomalie inconnu.")
         queries = []
         if "empty_room_hvac" in wanted:
             queries.append(_load_sql("empty_room_hvac.sql"))
         if "empty_zone_hvac" in wanted:
             queries.append(_load_sql("empty_zone_hvac.sql"))
+        if "empty_zone_lighting" in wanted:
+            queries.append(_load_sql("empty_zone_lighting.sql"))
         if "empty_room_lighting" in wanted:
             queries.append(_load_sql("empty_room_lighting.sql"))
 
@@ -194,12 +203,12 @@ def detect_anomalies(
     truncated = _balanced_sample(anomalies, cap, wanted)
 
     by_type: dict[str, int] = {}
-    for item in truncated:
+    for item in anomalies:
         by_type[item["type"]] = by_type.get(item["type"], 0) + 1
 
-    rooms_affected = {a["room"] for a in truncated if a["room"]}
+    rooms_affected = {a["room"] for a in anomalies if a["room"]}
     zones_affected = {
-        f"{a['zone']}/{a['floor']}" for a in truncated if a["zone"] and not a["room"]
+        f"{a['zone']}/{a['floor']}" for a in anomalies if a["zone"] and not a["room"]
     }
     return {
         "generated_at": datetime.now().isoformat(sep=" ", timespec="seconds"),
@@ -214,8 +223,10 @@ def detect_anomalies(
             "business_hours_only": business_hours_only,
         },
         "summary": {
-            "anomaly_count": len(truncated),
-            "total_wasted_kwh": round(sum(a["energy_kwh"] for a in truncated), 3),
+            "anomaly_count": len(anomalies),
+            "returned_count": len(truncated),
+            "truncated": len(anomalies) > len(truncated),
+            "total_wasted_kwh": round(sum(a["energy_kwh"] for a in anomalies), 3),
             "rooms_affected": len(rooms_affected),
             "zones_affected": len(zones_affected),
             "by_type": by_type,

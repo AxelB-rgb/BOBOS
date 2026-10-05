@@ -3,7 +3,10 @@ CREATE TABLE IF NOT EXISTS rooms (
     name TEXT,
     floor TEXT,
     zone TEXT,
-    source TEXT
+    source TEXT,
+    area_m2 REAL,
+    capacity INTEGER,
+    capacity_source TEXT
 );
 
 CREATE TABLE IF NOT EXISTS occupancy_hourly (

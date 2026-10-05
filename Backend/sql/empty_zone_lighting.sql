@@ -11,7 +11,7 @@ WITH zone_hvac AS (
     WHERE scope = 'zone'
       AND floor != ''
       AND zone != ''
-      AND usage IN ('Heating', 'Cooling', 'Ventilation and Auxilaries')
+      AND usage = 'Lighting'
       AND hour >= :date_from
       AND hour < :date_to
     GROUP BY hour, floor, zone
@@ -52,7 +52,7 @@ joined AS (
           WHERE r2.floor = h.floor AND r2.zone = h.zone
             AND r2.source LIKE 'occupancy%'
       )
-      AND h.hvac_kwh >= :min_hvac_kwh
+      AND h.hvac_kwh >= :min_lighting_kwh
 ),
 islands AS (
     SELECT
@@ -61,7 +61,7 @@ islands AS (
     FROM joined
 )
 SELECT
-    'empty_zone_hvac' AS type,
+    'empty_zone_lighting' AS type,
     NULL AS room,
     floor,
     zone,

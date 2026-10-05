@@ -10,7 +10,7 @@ from .dashboard import dashboard, metadata
 from .smart import smart, apply_action, history, llm_status
 
 STATIC_DIR = Path(__file__).resolve().parent / 'static'
-app = FastAPI(title='Épure · Copilote des espaces', description='BIM × IoT · Agrégation SQL, IA décisionnelle et commandes simulées',version='1.0.0')
+app = FastAPI(title='Copilote des espaces', description='BIM × IoT · Agrégation SQL, IA décisionnelle et commandes simulées',version='1.0.0')
 
 
 @app.exception_handler(ValueError)

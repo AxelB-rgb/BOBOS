@@ -22,5 +22,5 @@ if ($ImportData -or -not (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'Backe
     & $taskPython -m Backend.etl
     if ($LASTEXITCODE -ne 0) { throw "Import des donnees echoue." }
 }
-Write-Host 'Epure : http://127.0.0.1:8000 - API : http://127.0.0.1:8000/docs'
+Write-Host 'Copilote : http://127.0.0.1:8000 - API : http://127.0.0.1:8000/docs'
 & $taskPython -m uvicorn Backend.app:app --host 127.0.0.1 --port 8000

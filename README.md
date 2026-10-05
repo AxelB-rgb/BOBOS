@@ -1,4 +1,4 @@
-# Épure — Copilote d’optimisation des espaces
+# Copilote d’optimisation des espaces
 
 Application de Facility Management pour le Campus Dijon (ESEO / ESTP). Elle croise la maquette IFC et les CSV IoT de `Data/`, détecte les consommations en absence, propose des actions et enregistre des commandes **simulées**.
 

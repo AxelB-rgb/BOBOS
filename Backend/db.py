@@ -29,6 +29,13 @@ def connect(db_path: Path | None = None) -> sqlite3.Connection:
 def init_db(conn: sqlite3.Connection) -> None:
     conn.executescript(
         """
+        DROP TABLE IF EXISTS electrical_import;
+        DROP TABLE IF EXISTS electrical_hourly;
+        DROP TABLE IF EXISTS electrical_meters;
+        DROP TABLE IF EXISTS circuit_assets;
+        DROP TABLE IF EXISTS circuit_rooms;
+        DROP TABLE IF EXISTS meter_hierarchy;
+        DROP TABLE IF EXISTS electrical_circuits;
         DROP TABLE IF EXISTS energy_hourly;
         DROP TABLE IF EXISTS occupancy_hourly;
         DROP TABLE IF EXISTS rooms;

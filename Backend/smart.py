@@ -52,12 +52,12 @@ def local_proposals(anomalies):
     seen = set()
     # Prioritize distinct locations instead of three variants of the same intervention.
     for a in anomalies:
-        place = (a['room'],a['zone'],a['floor'])
+        place = a.get('circuit_id') or (a['room'],a['zone'],a['floor'])
         if place in seen:
             continue
         seen.add(place)
         lighting = a['type'].endswith('lighting')
-        location = a['room_name'] or f"{a['zone']} · {a['floor']}"
+        location = a.get('circuit_id') or a['room_name'] or f"{a['zone']} · {a['floor']}"
         selected.append(Proposal(title=f"{'Éteindre l’éclairage' if lighting else 'Passer le CVC en mode éco'} · {location}",
             reason=a['evidence'],
             instruction=('Vérifier la présence et les contraintes de sécurité, puis simuler l’extinction de l’éclairage.' if lighting else
@@ -185,11 +185,11 @@ def smart(raw, model_override=None):
             kwh = max(a['energy_kwh'] for a in refs)
             factor = .5 if p.command == 'hvac_eco' else (1 if p.command == 'lighting_off' else 0)
             saved = round(kwh*factor,3)
-            aid = hashlib.sha256(json.dumps({'ids':sorted(p.anomaly_ids),'command':p.command,'price':ENERGY_PRICE,'source':source,'model':model if source in {'openai','ollama'} else None},sort_keys=True).encode()).hexdigest()[:24]
+            aid = hashlib.sha256(json.dumps({'ids':sorted(p.anomaly_ids),'command':p.command,'price':ENERGY_PRICE,'source':source,'measurements':[(a['id'],a['energy_kwh']) for a in refs],'model':model if source in {'openai','ollama'} else None},sort_keys=True).encode()).hexdigest()[:24]
             data.update(id=aid, estimated_saving_eur=round(saved*ENERGY_PRICE,2), estimated_saving_kwh=saved,
                 saving_basis=f'Potentiel sur la période observée : {factor:.0%} de l’énergie de la preuve la plus élevée × {ENERGY_PRICE:.2f} €/kWh. Non garanti.',
                 severity=max(refs,key=lambda a: {'low':0,'medium':1,'high':2}[a['severity']])['severity'],
-                location=refs[0]['room'] or f"{refs[0]['zone']} / {refs[0]['floor']}", source=source,
+                location=refs[0].get('circuit_id') or refs[0]['room'] or f"{refs[0]['zone']} / {refs[0]['floor']}", source=source,
                 evidence=refs, period=raw['period'])
             existing = conn.execute('SELECT payload FROM recommendations WHERE id=?',(aid,)).fetchone()
             if existing:
@@ -213,7 +213,10 @@ def apply_action(aid):
             return json.loads(previous[0])
         action = json.loads(row[0])
         result = {'action_id':aid,'status':'simulated','command':action['command'],
-                  'target':action['location'],'created_at':datetime.now(timezone.utc).isoformat(),
+                  'target':action['location'],
+                  'circuit_ids':sorted({a['circuit_id'] for a in action['evidence'] if a.get('circuit_id')}),
+                  'sensor_ids':sorted({a['sensor_id'] for a in action['evidence'] if a.get('sensor_id')}),
+                  'created_at':datetime.now(timezone.utc).isoformat(),
                   'message':'Commande simulée et enregistrée. Aucun équipement réel modifié.'}
         conn.execute('INSERT OR IGNORE INTO commands VALUES (?,?,?)',(aid,json.dumps(result,ensure_ascii=False),result['created_at']))
         return json.loads(conn.execute('SELECT payload FROM commands WHERE action_id=?',(aid,)).fetchone()[0])

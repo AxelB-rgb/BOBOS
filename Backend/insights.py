@@ -188,13 +188,40 @@ def detect_anomalies(
             for r in conn.execute("SELECT code, name, floor, zone FROM rooms").fetchall()
         }
 
+        from .electrical import has_electrical, circuits_report
+        circuit_mode = has_electrical(conn)
         raw_rows = []
-        for sql in queries:
-            raw_rows.extend(dict(r) for r in conn.execute(sql, params).fetchall())
+        if circuit_mode:
+            topology = {c['sensor_id']:c for c in circuits_report(conn,params['date_from'],params['date_to'])['circuits']}
+            for record in conn.execute(_load_sql('empty_circuit.sql'),params):
+                row = dict(record)
+                if row['type'] not in wanted:
+                    continue
+                c = topology[row['sensor_id']]
+                served = c['rooms']
+                row['room'] = served[0]['code'] if len(served)==1 else None
+                row['floor'] = ' / '.join(sorted({r['floor'] or 'Non renseigné' for r in served}))
+                row['zone'] = ' / '.join(sorted({r['zone'] or 'Non renseignée' for r in served}))
+                item = _enrich(row,rooms)
+                item['id'] = f"electrical:{row['sensor_id']}:{row['start_at']}"
+                item['circuit_id'] = c['circuit_id']
+                item['sensor_id'] = c['sensor_id']
+                item['served_rooms'] = served
+                item['equipment'] = c['assets']
+                item['resource'] = 'Electricity'
+                item['mapping'] = c['mapping']
+                item['evidence'] = (f"Départ {c['circuit_id']} ({c['label']}) : les {len(served)} espaces desservis "
+                    f"({', '.join(r['code'] for r in served)}) sont tous observés sans présence pendant "
+                    f"{item['duration_hours']} h consécutives. Consommation électrique mesurée : {item['energy_kwh']:.3f} kWh. "
+                    "Correspondances MSI elecFeeds ; aucune répartition fictive par salle.")
+                raw_rows.append(item)
+        else:
+            for sql in queries:
+                raw_rows.extend(dict(r) for r in conn.execute(sql, params).fetchall())
     finally:
         conn.close()
 
-    anomalies = [_enrich(row, rooms) for row in raw_rows]
+    anomalies = raw_rows if circuit_mode else [_enrich(row, rooms) for row in raw_rows]
     if business_hours_only:
         anomalies = [a for a in anomalies if a["business_hours"] >= min_hours]
     anomalies.sort(key=lambda a: a["energy_kwh"], reverse=True)
@@ -206,7 +233,7 @@ def detect_anomalies(
     for item in anomalies:
         by_type[item["type"]] = by_type.get(item["type"], 0) + 1
 
-    rooms_affected = {a["room"] for a in anomalies if a["room"]}
+    rooms_affected = {r["code"] for a in anomalies for r in a.get("served_rooms",[])} if circuit_mode else {a["room"] for a in anomalies if a["room"]}
     zones_affected = {
         f"{a['zone']}/{a['floor']}" for a in anomalies if a["zone"] and not a["room"]
     }
@@ -230,6 +257,9 @@ def detect_anomalies(
             "rooms_affected": len(rooms_affected),
             "zones_affected": len(zones_affected),
             "by_type": by_type,
+            "circuits_affected": len({a["circuit_id"] for a in anomalies}) if circuit_mode else None,
+            "shared_circuits_affected": len({a["circuit_id"] for a in anomalies if a["mapping"]=="shared"}) if circuit_mode else None,
         },
+        "energy_basis": "electrical_circuits" if circuit_mode else "legacy_room_zone",
         "anomalies": truncated,
     }

@@ -13,7 +13,7 @@ if (-not (Test-Path -LiteralPath $taskPython)) {
     }
     if ($LASTEXITCODE -ne 0) { throw "Impossible de creer le venv Python." }
 }
-& $taskPython -c 'import fastapi, uvicorn, pandas, httpx' 2>$null
+& $taskPython -c 'import fastapi, uvicorn, pandas, httpx, openpyxl' 2>$null
 if ($LASTEXITCODE -ne 0) {
     & $taskPython -m pip install -r requirements.txt
     if ($LASTEXITCODE -ne 0) { throw "Installation des dependances echouee." }

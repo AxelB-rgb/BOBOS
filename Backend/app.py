@@ -64,6 +64,16 @@ def overview(date_from: str | None = Query(None,alias='from'),date_to: str | Non
     return dashboard(date_from,date_to)
 
 
+@app.get('/api/energy/circuits',dependencies=[Depends(ready)])
+def electrical_circuits(date_from: str | None = Query(None,alias='from'),date_to: str | None = Query(None,alias='to')):
+    from .dashboard import period
+    from .electrical import circuits_report
+    from .db import connect
+    with connect() as conn:
+        start,end = period(conn,date_from,date_to)
+        return circuits_report(conn,start,end)
+
+
 @app.get('/api/insights/raw')
 def raw(options: dict = Depends(filters)):
     return detect_anomalies(**options)

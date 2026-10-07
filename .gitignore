@@ -252,3 +252,8 @@ service-account.json
 .DS_Store
 *.orig
 *.rej
+
+# SQLite transaction files
+*.db-journal
+*.db-wal
+*.db-shm

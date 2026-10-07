@@ -342,7 +342,11 @@ def run() -> Path:
         init_db(conn)
         load_rooms(conn)
         load_occupancy(conn)
-        load_energy(conn)
+        from .electrical import MSI_NAME, load_meter_energy
+        if (DATA_DIR / MSI_NAME).exists():
+            load_meter_energy(conn, DATA_DIR)
+        else:
+            load_energy(conn)
     finally:
         conn.close()
     print(f"Base écrite: {DB_PATH}")

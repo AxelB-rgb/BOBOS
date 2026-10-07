@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from .db import connect
 from .config import AREA_PER_PERSON, ENERGY_PRICE
 from .insights import _parse_dt, _dataset_bounds
+from .electrical import circuits_report
 
 
 def period(conn, date_from=None, date_to=None):
@@ -26,7 +27,9 @@ def metadata():
                 'price_eur_kwh': ENERGY_PRICE, 'area_per_person_m2': AREA_PER_PERSON,
                 'limitations': ['Présence binaire : utilisation horaire, pas un comptage de personnes.',
                                'Capacité estimée à partir de la surface IFC ; non réglementaire.',
-                               'Pas de données de réservation. Économies indicatives ; compteurs potentiellement imbriqués.']}
+                               'Pas de données de réservation. Économies indicatives.',
+                               'Électricité : départs partagés non répartis ; compteurs parents exclus quand un descendant est mesuré. Le sous-comptage ne représente pas une facture.',
+                               'Correspondances MSI/CDE de 2022/2024 appliquées aux observations de 2026 ; changements de câblage non connus.']}
 
 
 def dashboard(date_from=None, date_to=None):
@@ -49,6 +52,25 @@ def dashboard(date_from=None, date_to=None):
                 e.energy_kwh FROM rooms r LEFT JOIN occ o ON r.code=o.room
                 LEFT JOIN energy e ON r.code=e.room ORDER BY r.floor,r.code
         ''', params)]
+        electrical = circuits_report(conn,start,end,include_assets=False)
+        if electrical['available']:
+            dedicated = {}
+            shared = {}
+            feeds = {}
+            for circuit in electrical['circuits']:
+                for link in circuit['rooms']:
+                    feeds.setdefault(link['code'],[]).append(circuit['circuit_id'])
+                    if not circuit['included'] or circuit['energy_kwh'] is None:
+                        continue
+                    if circuit['mapping']=='dedicated':
+                        dedicated[link['code']] = dedicated.get(link['code'],0)+circuit['energy_kwh']
+                    else:
+                        shared.setdefault(link['code'],[]).append(circuit['circuit_id'])
+            for room in rooms:
+                room['energy_kwh'] = dedicated.get(room['code'])
+                room['electrical_feeds'] = sorted(set(feeds.get(room['code'],[])))
+                room['shared_feeds'] = sorted(set(shared.get(room['code'],[])))
+                room['energy_basis'] = 'dedicated_electrical_circuits'
         for r in rooms:
             r['utilization_pct'] = round(100*r['business_occupied']/r['business_observed'],1) if r['business_observed'] else None
             r['coverage_pct'] = round(100*(r['observed_hours'] or 0)/((datetime.fromisoformat(end)-datetime.fromisoformat(start)).total_seconds()/3600),1)
@@ -60,6 +82,13 @@ def dashboard(date_from=None, date_to=None):
                   FROM occupancy_hourly WHERE hour>=:start AND hour<:end GROUP BY hour)
             SELECT o.hour,o.utilization_pct,o.rooms_observed,e.energy_kwh FROM o LEFT JOIN e ON o.hour=e.hour ORDER BY o.hour
         ''', params)]
+        if electrical['available']:
+            energy = {r['hour']:r['energy_kwh'] for r in conn.execute("""
+                SELECT e.hour,SUM(e.energy_kwh) energy_kwh FROM electrical_hourly e
+                JOIN electrical_meters m ON m.sensor_id=e.sensor_id AND m.included=1
+                WHERE e.hour>=:start AND e.hour<:end GROUP BY e.hour""",params)}
+            for row in trend:
+                row['energy_kwh'] = energy.get(row['hour'])
         floors = {}
         for r in rooms:
             if not r['observed_hours']:
@@ -73,8 +102,9 @@ def dashboard(date_from=None, date_to=None):
             f['utilization_pct'] = round(100*f['occupied']/f['observed'],1) if f['observed'] else None
         observed = sum(r['business_observed'] or 0 for r in rooms)
         occupied = sum(r['business_occupied'] or 0 for r in rooms)
-        return {'period':{'from':start,'to':end}, 'rooms':rooms,'floors':list(floors.values()), 'trend':trend,
+        return {'period':{'from':start,'to':end}, 'rooms':rooms,'floors':list(floors.values()), 'trend':trend, 'electrical':electrical,
+                'energy_basis':'electrical_circuits' if electrical['available'] else 'legacy_room_zone',
                 'summary':{'utilization_pct':round(100*occupied/observed,1) if observed else None,
                            'monitored_rooms':sum(bool(r['observed_hours']) for r in rooms),
-                           'energy_kwh':round(sum(t['energy_kwh'] or 0 for t in trend),2),
+                           'energy_kwh':electrical['summary']['energy_kwh'] if electrical['available'] else round(sum(t['energy_kwh'] or 0 for t in trend),2),
                            'estimated_capacity':sum(r['capacity'] or 0 for r in rooms)}}

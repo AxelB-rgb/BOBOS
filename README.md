@@ -51,6 +51,7 @@ API :
 
 - `GET /api/health` : disponibilité du serveur et présence de la base.
 - `GET /api/metadata` : dates disponibles, hypothèses, nombre d’espaces.
+- `GET /api/energy/circuits?from=2026-01-12&to=2026-01-12` : consommations électriques par départ, équipements, espaces desservis et provenance.
 - `GET /api/dashboard?from=2026-01-12&to=2026-01-12` : espaces, tendances et utilisation.
 - `GET /api/insights/raw?from=2026-01-12&to=2026-01-12` : anomalies brutes.
 - `GET /api/insights/smart?from=2026-01-12&to=2026-01-12` : cartes d’action.
@@ -61,22 +62,27 @@ Les routes d’insights acceptent `min_hours` (défaut 2), `min_hvac_kwh` (0,08)
 
 ## Données et hypothèses à expliquer à l’oral
 
-- **368 espaces** rapprochés depuis l’IFC et l’IoT ; **144 espaces** avec présence dans le jeu fourni ; **132 surfaces IFC** calculables avec les profils supportés. Aucun espace fictif n’est ajouté.
+- **392 espaces** rapprochés depuis l’IFC et l’IoT ; **144 espaces** avec présence dans le jeu fourni ; **132 surfaces IFC** calculables avec les profils supportés. Aucun espace fictif n’est ajouté.
 - Les coordonnées de ce fichier IFC sont en centimètres. Les surfaces sont calculées avec la formule du polygone sur les profils extrudés supportés. La géométrie non supportée reste inconnue.
 - La **capacité estimée** est `surface / 4 m²`, arrondie à l’entier inférieur (minimum 1). C’est une hypothèse de planification paramétrable, pas une capacité réglementaire ou un effectif fourni par le BIM.
 - La présence est **binaire**. L’utilisation est la part des heures observées où une présence est détectée. L’indicateur d’utilisation ouvrée concerne lundi–vendredi, 8h–18h ; la courbe utilise toutes les heures de la période. Il ne mesure pas le remplissage en personnes.
 - Une pièce sans mesure n’est jamais déclarée vide. Une zone nécessite la présence d’observations pour tous ses espaces équipés de capteurs, et l’absence dans chacun.
 - Les CSV d’énergie sont traités comme des **index cumulés** : deltas positifs par capteur, continuité entre fichiers mensuels, doublons temporels supprimés. Les deltas négatifs de remise à zéro sont ramenés à zéro. Le premier relevé sans précédent ne produit pas de consommation ; les décalages de mesure à l’intérieur d’une heure ne sont pas interpolés.
-- Les compteurs identifiés par usage RE2020 / nom sont rapprochés à l’échelle pièce ou zone. Les départs généraux sont associés à une zone, même si leur champ room indique le local du compteur. Certains compteurs peuvent être imbriqués : l’énergie et le potentiel brut ne constituent pas une facture certifiée. Une consommation pendant une absence peut aussi être nécessaire techniquement.
+- **Référentiel électrique MSI/CDE** : `Structure.elecFeeds` relie espaces et départs. Les relations de service (chauffage/air/extraction) permettent de distinguer le local d'un équipement des salles qu'il dessert. `Equipements site` et `Device site` donnent les alimentations, suivies récursivement jusqu'au premier départ. Les nomenclatures BIM sont rapprochées exactement à `TwinOps Referential.nomenclature` du CDE, sans rapprochement approximatif ni choix silencieux en cas de doublons. Le CDE fourni ne contient pas directement les identifiants `Depart_...` : la nomenclature MSI constitue le pont.
+- **234 compteurs électriques**, **15 compteurs parents exclus** et **219 compteurs retenus** dans les exports fournis. `Sous-Comptage` identifie les relations parent/descendant, y compris transitives. Tout compteur ayant un descendant mesuré est exclu des sommes. Cela évite d'ajouter départ général et sous-départs, mais laisse des consommations non sous-comptées : le total affiché n'est pas une facture bâtiment.
+- La consommation conserve le **grain capteur/départ/heure**, tous usages électriques. Seuls les compteurs `resource=Electricity` et les index `Depart_..._Energie_Active` / `TGBT_..._Energie_Active` alimentent ce bilan. Les mesures d'énergie thermique sur eau restent exclues du bilan électrique.
+- Un départ partagé n'est jamais réparti arbitrairement entre ses salles. La colonne Électricité dédiée additionne seulement les départs retenus desservant un unique espace. Les autres restent visibles dans la vue départs, avec équipements, capteur IoT, provenance et couverture présence.
+- Une anomalie de départ exige que **toutes les salles desservies**, y compris celles sans capteur connu, soient effectivement mesurées sans présence pour chaque heure. Un espace non observé bloque l'alerte. Les types `empty_zone_*` désignent alors un départ partagé et `empty_room_*` un départ dédié.
+- Les référentiels datent de 2022 et 2024 et sont appliqués à l'IoT 2026. Les changements ultérieurs de câblage ne sont pas connus. **21 différences de localisation** MSI/CDE et **1 correspondance CDE multiple** sont exposées dans les détails. Les liens historiques doivent être vérifiés avant une intervention réelle. Une consommation pendant une absence peut aussi être nécessaire techniquement.
 - Seuils : présence nulle + CVC ≥ 0,08 kWh/h ou éclairage ≥ 0,05 kWh/h pendant **au moins 2 heures consécutives**. Modifier `min_hours=3` pour un critère strictement supérieur à 2 heures.
 - Le filtre « heures ouvrées » conserve les épisodes qui comportent au moins deux heures ouvrées ; la consommation de l’épisode entier reste affichée. Les graphiques du contexte bâtiment gardent la période entière.
-- Pas de données de réservation : aucune affirmation de salle « réservée mais vide ». Les autres exports (CO₂, eau, humidité, DOE et Excel) sont conservés mais ne sont pas requis par les trois jalons et ne sont pas incorporés à ce calcul.
+- Pas de données de réservation : aucune affirmation de salle « réservée mais vide ». Les autres exports (CO₂, eau, humidité et DOE) sont conservés mais ne sont pas requis par les trois jalons et ne sont pas incorporés à ce calcul.
 - Économies : tarif hypothétique **0,20 €/kWh**, potentiel CVC **50 %**, éclairage **100 %**, revue de planning **0 %**. Pour une carte multi-preuves, on retient seulement l’énergie de la preuve la plus élevée pour limiter l’addition de compteurs potentiellement imbriqués. Ces montants portent sur la période observée ; ils ne sont ni garantis, ni extrapolés en €/jour ou €/an.
 - L’application de commande est une **simulation** : aucun protocole BACnet/MQTT ni équipement réel n’est connecté. Les consignes CVC demandent une vérification de confort, sécurité et hors-gel.
 
 ## Démo de soutenance (3 minutes)
 
-1. Ouvrir la vue d’ensemble au 12 janvier 2026. Présenter utilisation, consommation pendant les absences et 34 anomalies.
+1. Ouvrir la vue d’ensemble au 12 janvier 2026. Présenter utilisation, consommation pendant les absences et les anomalies calculées par départ électrique.
 2. Ouvrir une preuve et expliquer la jointure SQL + les îlots d’heures consécutives.
 3. Ouvrir le jumeau des espaces : surface, capacité estimée, présence réelle et couverture IoT.
 4. Cliquer « Générer les recommandations ». Montrer la source locale ou OpenAI et les hypothèses de calcul dans Détails.
@@ -88,6 +94,7 @@ Les routes d’insights acceptent `min_hours` (défaut 2), `min_hvac_kwh` (0,08)
 ```powershell
 ./.runtime/Scripts/python.exe -m unittest discover -s tests -v
 node --check Backend/static/app.js
+node --check Backend/static/electrical.js
 ```
 
 Les tests utilisent une base temporaire indépendante : rupture des îlots, exclusion des mesures manquantes, couverture complète des zones, totaux indépendants de la pagination, validation HTTP, validation et secours LLM, génération sans anomalies et idempotence des simulations.
@@ -95,6 +102,8 @@ Les tests utilisent une base temporaire indépendante : rupture des îlots, excl
 ## Organisation
 
 - `Backend/etl.py` : import CSV, rapprochement des capteurs, agrégations horaires.
+- `Backend/electrical.py` : import des référentiels MSI/CDE, liens elecFeeds, sous-comptage et lectures électriques.
+- `Backend/electrical_import.py` : mise à jour d’une base existante sur une copie, puis remplacement après fermeture des connexions.
 - `Backend/bim.py` : surfaces des profils IFC supportés.
 - `Backend/sql/` : schéma et quatre requêtes d’anomalies.
 - `Backend/insights.py` : filtres, preuves et bilans complets.
@@ -133,3 +142,17 @@ Le mode Ollama sélectionne jusqu’à trois anomalies prioritaires sur des lieu
 Les validations des références et commandes restent identiques au mode OpenAI.
 Une erreur ou une réponse invalide produit un secours déterministe explicitement annoncé.
 Le premier appel peut être plus lent, car Ollama charge le modèle en mémoire.
+
+## Mettre à jour une base existante avec les liens électriques
+
+Arrêter le serveur, puis :
+
+```powershell
+./.runtime/Scripts/python.exe -m pip install -r requirements.txt
+./.runtime/Scripts/python.exe -m Backend.electrical_import
+./start.ps1
+```
+
+Cette mise à jour conserve l’occupation, le BIM et le journal des simulations. Les futurs imports complets (`start.ps1 -ImportData`) intègrent aussi les classeurs. Les sources Excel ne sont jamais modifiées.
+
+Exemples vérifiés : `Depart_146` dessert l'extraction du laboratoire `00-02-S`, même si son compteur est localisé en `S1-05-S`. `Depart_010` est un départ d'éclairage partagé par cinq espaces. Au 12 janvier 2026, le sous-comptage retenu donne 732,783 kWh électriques, dont 121,210 kWh dédiés, 608,826 kWh partagés et 2,747 kWh sans attribution d'espace. Les tests couvrent ces règles avec des données indépendantes, les index aux frontières mensuelles, les remises à zéro et l'exclusion des mesures thermiques.

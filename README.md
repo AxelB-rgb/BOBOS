@@ -156,3 +156,9 @@ Arrêter le serveur, puis :
 Cette mise à jour conserve l’occupation, le BIM et le journal des simulations. Les futurs imports complets (`start.ps1 -ImportData`) intègrent aussi les classeurs. Les sources Excel ne sont jamais modifiées.
 
 Exemples vérifiés : `Depart_146` dessert l'extraction du laboratoire `00-02-S`, même si son compteur est localisé en `S1-05-S`. `Depart_010` est un départ d'éclairage partagé par cinq espaces. Au 12 janvier 2026, le sous-comptage retenu donne 732,783 kWh électriques, dont 121,210 kWh dédiés, 608,826 kWh partagés et 2,747 kWh sans attribution d'espace. Les tests couvrent ces règles avec des données indépendantes, les index aux frontières mensuelles, les remises à zéro et l'exclusion des mesures thermiques.
+
+## Plan interactif (branche babas)
+
+La navigation propose **Plan interactif** (`/map`). Les plans SVG couvrent N0 à N5 et S1. Sélectionner un étage, une période puis une salle affiche ses anomalies et les départs concernés. Les dates du tableau de bord sont conservées à l’aller et au retour.
+
+Les anomalies de départs partagés sont affichées sur chaque salle explicitement desservie, sans répartir ni additionner plusieurs fois leur énergie. Une salle sans présence mesurée est distinguée sur la carte. Le compteur de l’étage déduplique les anomalies et la pagination est annoncée si l’API renvoie un échantillon. Aucune commande réelle n’est envoyée depuis la carte.

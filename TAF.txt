@@ -1,0 +1,11 @@
+modélisation des départs en fonction des salles sur la carte interactives
+
+pour les preuves des anomalies enlevé le bloc imbuvable et juste afficher la salle en surbrillance sur la carte
+
+ajouter des regles metier sur les données exemple : les présences a 1h du matin
+
+LES FONCTIONNALIT2S DOIVENT ETRE ORIENT2S VERS L4UTILISATEUR ET PAS L4UTILISATEUR QUI VAS CHERCHER LES INFOS
+
+recommandations de l'ia a finir 
+
+faire la sélection du bon model pour notre ia

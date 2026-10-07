@@ -10,7 +10,6 @@ from .dashboard import dashboard, metadata
 from .smart import smart, apply_action, history, llm_status
 
 STATIC_DIR = Path(__file__).resolve().parent / 'static'
-EXPORTS_DIR = Path(__file__).resolve().parent.parent / 'exports'
 app = FastAPI(title='Copilote des espaces', description='BIM × IoT · Agrégation SQL, IA décisionnelle et commandes simulées',version='1.0.0')
 
 
@@ -99,14 +98,8 @@ def commands():
 
 
 app.mount('/static',StaticFiles(directory=STATIC_DIR),name='static')
-app.mount('/exports',StaticFiles(directory=EXPORTS_DIR),name='exports')
 
 
 @app.get('/')
 def index():
     return FileResponse(STATIC_DIR/'index.html')
-
-
-@app.get('/map')
-def map_view():
-    return FileResponse(STATIC_DIR/'map.html')

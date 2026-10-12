@@ -58,7 +58,7 @@ assert.equal(shortcut.href,'/?view=history');
  vm.runInContext('installMapViewport()',context);
  pointerHandlers.pointerdown({button:0,clientX:100,clientY:100,pointerId:1});
  pointerHandlers.pointermove({clientX:140,clientY:120,pointerId:1});
- assert.equal(context.lastViewBox,'-20 -10 1200 600');
+ assert.equal(context.lastViewBox,'-44 -34 1248 648');
  assert.equal(vm.runInContext('state.mapDragged',context),true);
  pointerHandlers.pointerup();
  element('circuit-search').value='Depart_1';vm.runInContext('renderCircuitList()',context);

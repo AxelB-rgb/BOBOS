@@ -2,7 +2,10 @@
 function installMapViewport(){
   const svg=state.svg,v=svg?.viewBox?.baseVal;
   if(!v?.width||!v.height)return;
-  state.mapBase={x:v.x,y:v.y,width:v.width,height:v.height};
+  const bounds=svg.getBBox?.();
+  const drawing=bounds?.width>0&&bounds?.height>0?bounds:v;
+  const margin=Math.max(drawing.width,drawing.height)*.02;
+  state.mapBase={x:drawing.x-margin,y:drawing.y-margin,width:drawing.width+2*margin,height:drawing.height+2*margin};
   state.mapView={...state.mapBase};state.mapDragged=false;
   updateMapViewport();
   svg.addEventListener('wheel',event=>{event.preventDefault();const point=new DOMPoint(event.clientX,event.clientY).matrixTransform(svg.getScreenCTM().inverse());zoomMap(event.deltaY<0?1.2:1/1.2,point);},{passive:false});

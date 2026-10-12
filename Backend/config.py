@@ -28,7 +28,7 @@ if ENERGY_PRICE <= 0 or AREA_PER_PERSON <= 0:
 
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "auto").lower()
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:latest")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
 LLM_TIMEOUT_SECONDS = float(os.getenv("LLM_TIMEOUT_SECONDS", "180"))
 if LLM_PROVIDER not in {"auto", "local", "openai", "ollama"}:
     raise ValueError("LLM_PROVIDER doit être auto, local, openai ou ollama.")

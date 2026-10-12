@@ -158,31 +158,53 @@ def load_rooms(conn: sqlite3.Connection) -> None:
 
 
 def load_occupancy(conn: sqlite3.Connection) -> None:
-    print("Agrégation horaire de l'occupation...")
-    conn.execute("DELETE FROM occupancy_hourly")
-    total = 0
+    from .rules import ensure_tables, settings
+    import json
+    from datetime import datetime, timedelta
+    ensure_tables(conn)
+    config=settings(conn)
+    known={r[0] for r in conn.execute('SELECT code FROM rooms')}
+    print("Agrégation horaire de l'occupation et audit de qualité...")
+    # Stage every source before replacing the current presence dataset.
+    conn.execute('DROP TABLE IF EXISTS temp.presence_stage')
+    conn.execute('CREATE TEMP TABLE presence_stage(sensor TEXT, timestamp TEXT, room TEXT, occupied INTEGER, PRIMARY KEY(sensor,timestamp,room)) WITHOUT ROWID')
+    audits=[]
     for path in occupancy_files():
-        df = pd.read_csv(path, sep=";", usecols=["timestamp", "value", "room"])
-        df = df.dropna(subset=["room", "timestamp"])
-        df["hour"] = pd.to_datetime(df["timestamp"]).dt.floor("h").dt.strftime("%Y-%m-%d %H:%M:%S")
-        df["occupied"] = (
-            df["value"].astype(str).str.lower().isin(["true", "1", "1.0"]).astype(int)
-        )
-        hourly = (
-            df.groupby(["room", "hour"], as_index=False)
-            .agg(occupied=("occupied", "max"), n_samples=("occupied", "size"))
-        )
-        conn.executemany(
-            "INSERT INTO occupancy_hourly(room, hour, occupied, n_samples) VALUES (?, ?, ?, ?) "
-            "ON CONFLICT(room, hour) DO UPDATE SET "
-            "occupied = MAX(occupancy_hourly.occupied, excluded.occupied), "
-            "n_samples = occupancy_hourly.n_samples + excluded.n_samples",
-            list(hourly.itertuples(index=False, name=None)),
-        )
-        conn.commit()
-        total += len(hourly)
-        print(f"  {path.name}: {len(hourly)} heures-pièces")
-    print(f"  total occupancy_hourly ~ {total}")
+        columns=pd.read_csv(path,sep=';',nrows=0).columns
+        use=['timestamp','value','room']+(['sensor id'] if 'sensor id' in columns else [])
+        df=pd.read_csv(path,sep=';',usecols=use)
+        dates=pd.to_datetime(df['timestamp'],errors='coerce',format='mixed')
+        if getattr(dates.dt,'tz',None) is not None:
+            dates=dates.dt.tz_localize(None)  # Keep the exported wall-clock convention used by the energy import.
+        value=df['value'].astype(str).str.lower().str.strip()
+        unknown=~df['room'].isin(known)
+        invalid_value=~value.isin(['true','false','1','0','1.0','0.0'])
+        future=dates>datetime.now()+timedelta(minutes=config.future_tolerance_minutes)
+        valid=dates.notna() & ~unknown & ~invalid_value & ~future
+        cleaned=df.loc[valid].copy()
+        cleaned['timestamp']=dates[valid].dt.strftime('%Y-%m-%d %H:%M:%S.%f')
+        cleaned['occupied']=value[valid].isin(['true','1','1.0']).astype(int)
+        cleaned['sensor']=cleaned['sensor id'].astype(str) if 'sensor id' in cleaned else path.name
+        events=list(cleaned[['sensor','timestamp','room','occupied']].itertuples(index=False,name=None))
+        before=conn.execute('SELECT COUNT(*) FROM presence_stage').fetchone()[0]
+        conflicts_before=conn.execute('SELECT COUNT(*) FROM presence_stage WHERE occupied=-1').fetchone()[0]
+        conn.executemany('''INSERT INTO presence_stage VALUES (?,?,?,?)
+            ON CONFLICT(sensor,timestamp,room) DO UPDATE SET occupied=CASE
+            WHEN presence_stage.occupied=excluded.occupied THEN presence_stage.occupied ELSE -1 END''',events)
+        added=conn.execute('SELECT COUNT(*) FROM presence_stage').fetchone()[0]-before
+        conflicts=conn.execute('SELECT COUNT(*) FROM presence_stage WHERE occupied=-1').fetchone()[0]-conflicts_before
+        audit={'invalid_timestamp':int(dates.isna().sum()),'invalid_value':int(invalid_value.sum()),
+            'unknown_room':int(unknown.sum()),'future_timestamp':int(future.sum()),
+            'duplicates':len(events)-added,'conflicting_values':conflicts,'accepted':added,'total':len(df)}
+        audits.append((path.name,json.dumps(audit),datetime.now().isoformat()))
+        print(f"  {path.name}: {added} observations retenues, {audit['duplicates']} doublons neutralisés")
+    conn.execute('DELETE FROM occupancy_hourly')
+    conn.execute("INSERT INTO occupancy_hourly SELECT room,strftime('%Y-%m-%d %H:00:00',timestamp),MAX(occupied),COUNT(*) FROM presence_stage WHERE occupied IN (0,1) GROUP BY room,strftime('%Y-%m-%d %H:00:00',timestamp)")
+    conn.execute('DELETE FROM presence_import_audit')
+    conn.executemany('INSERT INTO presence_import_audit VALUES (?,?,?)',audits)
+    conn.commit()
+    conn.execute('DROP TABLE presence_stage')
+    print('  Import idempotent ; audit enregistré, données incorrectes écartées.')
 
 
 def scope_for(room: str | None, name: str) -> str | None:

@@ -21,6 +21,7 @@ class ElectricalTests(unittest.TestCase):
             c.executemany('INSERT INTO rooms(code,name,floor,zone,source) VALUES (?,?,?,?,?)',
                 [('A','A','Etage 1','ESEO','occupancy'),('B','B','Etage 1','ESEO','occupancy')])
         self.patches=[patch('Backend.insights.connect',lambda:connect(self.path)),
+                      patch('Backend.rules.connect',lambda:connect(self.path)),
                       patch('Backend.dashboard.connect',lambda:connect(self.path)),
                       patch('Backend.smart.connect',lambda:connect(self.path)),
                       patch('Backend.smart.LLM_PROVIDER','local')]
@@ -52,7 +53,7 @@ class ElectricalTests(unittest.TestCase):
         self.occupancy('A',[(h,0) for h in range(4)])
         self.assertEqual(detect_anomalies()['anomalies'],[])
         self.occupancy('B',[(0,0),(1,0),(2,1),(3,0)])
-        rows=detect_anomalies()['anomalies']
+        rows=detect_anomalies(types=['empty_zone_lighting'])['anomalies']
         self.assertEqual(len(rows),1)
         self.assertEqual(rows[0]['duration_hours'],2)
         self.assertEqual(rows[0]['energy_kwh'],2)

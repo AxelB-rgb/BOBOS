@@ -27,6 +27,7 @@ class BOSIntegrationTests(unittest.TestCase):
         self.conn.commit()
         self.conn.close()
         self.patches = [patch('Backend.insights.connect',lambda:connect(self.path)),
+                      patch('Backend.rules.connect',lambda:connect(self.path)),
                         patch('Backend.dashboard.connect',lambda:connect(self.path)),
                         patch('Backend.smart.connect',lambda:connect(self.path)),
                         patch('Backend.app.DB_PATH',self.path),patch('Backend.smart.OPENAI_API_KEY',''),patch('Backend.smart.LLM_PROVIDER','auto')]
@@ -46,6 +47,39 @@ class BOSIntegrationTests(unittest.TestCase):
         self.assertNotIn('empty_zone_hvac',raw['summary']['by_type'])
         all_rows=detect_anomalies()['anomalies']
         self.assertEqual(sorted(a['duration_hours'] for a in all_rows),[2,3])
+
+    def test_night_presence_one_hour_and_safe_action(self):
+        with connect(self.path) as conn:
+            conn.execute("INSERT INTO occupancy_hourly VALUES ('B','2026-01-12 01:00:00',1,4)")
+        raw=detect_anomalies(types=['night_presence'])
+        self.assertEqual(raw['summary']['anomaly_count'],1)
+        anomaly=raw['anomalies'][0]
+        self.assertTrue(anomaly['occupied'])
+        self.assertEqual(anomaly['duration_hours'],1)
+        self.assertEqual(anomaly['energy_kwh'],0)
+        self.assertEqual(smart(raw)['actions'][0]['command'],'review_schedule')
+        self.assertEqual(smart(raw)['actions'][0]['estimated_saving_eur'],0)
+        unsafe=Proposal(title='Couper',reason='Nuit',instruction='Couper',anomaly_ids=[anomaly['id']],command='hvac_eco')
+        with self.assertRaises(ValueError):validate_proposals([unsafe],{anomaly['id']:anomaly})
+        self.assertEqual(detect_anomalies(types=['night_presence'],business_hours_only=True)['anomalies'],[])
+
+    def test_map_keeps_unmeasured_circuit_and_human_equipment_names(self):
+        with connect(self.path) as conn:
+            conn.execute("INSERT INTO electrical_circuits VALUES ('Depart_999','Éclairage salle A','Lighting',NULL,NULL,'{}')")
+            conn.execute("INSERT INTO circuit_rooms VALUES ('Depart_999','A','[]')")
+            conn.execute("INSERT INTO electrical_import VALUES ('complete','1')")
+            conn.execute("INSERT INTO electrical_import VALUES ('reference','{}')")
+            payload=json.dumps({'id':'VC_001','name':'VC_001','hosted_room':'A','cde_matches':[{'name':'Ventilo-convecteur'}]})
+            conn.execute("INSERT INTO circuit_assets VALUES ('Depart_999','VC_001',?)",(payload,))
+        with patch('Backend.db.connect',lambda:connect(self.path)):
+            data=self.client.get('/api/map/data').json()
+            circuit=next(c for c in data['electrical']['circuits'] if c['circuit_id']=='Depart_999')
+            self.assertIsNone(circuit['energy_kwh'])
+            self.assertTrue(circuit['unmeasured'])
+            self.assertEqual(circuit['rooms'][0]['code'],'A')
+            assets=self.client.get('/api/energy/circuits/Depart_999/assets').json()
+            self.assertEqual(assets['assets'][0]['name'],'Ventilo-convecteur')
+            self.assertEqual(self.client.get('/api/energy/circuits/invented/assets').status_code,404)
 
     def test_zone_requires_complete_coverage(self):
         with connect(self.path) as conn:
@@ -134,15 +168,20 @@ class BOSIntegrationTests(unittest.TestCase):
 
     def test_ollama_structured_generation(self):
         raw=detect_anomalies()
-        proposal=Proposal(title='Mode éco',reason='Absence mesurée',instruction='Vérifier puis simuler',
+        proposal=Proposal(title='Consulter les données',reason='Absence mesurée',instruction='Vérifier puis simuler',
                           anomaly_ids=['A1'],command='hvac_eco')
         with patch('Backend.smart.LLM_PROVIDER','ollama'),patch('Backend.smart.httpx.Client') as client:
             client.return_value.__enter__.return_value.post.return_value.json.return_value={'message':{'content':json.dumps({'action_1':proposal.model_dump()})}}
             data=smart(raw)
             self.assertEqual(data['source'],'ollama')
+            self.assertIn('éco',data['actions'][0]['title'])
+            self.assertIn('hors-gel',data['actions'][0]['instruction'])
             payload=client.return_value.__enter__.return_value.post.call_args.kwargs['json']
             self.assertFalse(payload['stream'])
             self.assertEqual(payload['format']['type'],'object')
+            again=smart(raw)
+            self.assertEqual(again['source'],'ollama')
+            self.assertEqual(client.return_value.__enter__.return_value.post.call_count,1)
         with patch('Backend.smart.LLM_PROVIDER','ollama'),patch('Backend.smart.llm_status',return_value={'models':['llama3.2:latest']}):
             with self.assertRaises(ValueError):smart(raw,model_override='unknown')
 
@@ -154,7 +193,8 @@ class BOSIntegrationTests(unittest.TestCase):
             client.return_value.__enter__.return_value.post.return_value.json.return_value={'choices':[{'message':{'content':json.dumps({'actions':[p.model_dump()]})}}]}
             data=smart(raw)
             self.assertEqual(data['source'],'openai')
-            self.assertEqual(data['actions'][0]['title'],p.title)
+            self.assertIn('éco',data['actions'][0]['title'])
+            self.assertIn('Salle A',data['actions'][0]['title'])
             payload=client.return_value.__enter__.return_value.post.call_args.kwargs['json']
             self.assertTrue(payload['response_format']['json_schema']['strict'])
 

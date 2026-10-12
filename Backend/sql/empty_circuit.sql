@@ -13,10 +13,12 @@ WITH counts AS (
         CASE WHEN m.usage='Lighting' THEN
             CASE WHEN n.n_rooms=1 THEN 'empty_room_lighting' ELSE 'empty_zone_lighting' END
         ELSE CASE WHEN n.n_rooms=1 THEN 'empty_room_hvac' ELSE 'empty_zone_hvac' END END type
-    FROM electrical_hourly e JOIN electrical_meters m ON m.sensor_id=e.sensor_id
-    JOIN empty x ON x.circuit_id=m.circuit_id AND x.hour=e.hour
+    -- Fix join order so older SQLite versions seek one meter/hour rather than
+    -- scanning every meter for each room-empty hour.
+    FROM empty x CROSS JOIN electrical_meters m ON m.circuit_id=x.circuit_id
+    CROSS JOIN electrical_hourly e ON e.sensor_id=m.sensor_id AND e.hour=x.hour
     JOIN counts n ON n.circuit_id=m.circuit_id
-    WHERE m.included=1 AND (
+    WHERE e.hour>=:date_from AND e.hour<:date_to AND m.included=1 AND (
         (m.usage='Lighting' AND e.energy_kwh>=:min_lighting_kwh) OR
         (m.usage IN ('Heating','Cooling','Ventilation and Auxilaries') AND e.energy_kwh>=:min_hvac_kwh)
     )

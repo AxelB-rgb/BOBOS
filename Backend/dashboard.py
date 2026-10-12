@@ -2,18 +2,12 @@
 from datetime import datetime, timedelta
 from .db import connect
 from .config import AREA_PER_PERSON, ENERGY_PRICE
-from .insights import _parse_dt, _dataset_bounds
+from .insights import _parse_dt, _dataset_bounds, selected_period
 from .electrical import circuits_report
 
 
 def period(conn, date_from=None, date_to=None):
-    lo, hi = _dataset_bounds(conn)
-    start = _parse_dt(date_from, lo)
-    end = _parse_dt(date_to, hi)
-    if date_to and len(date_to) == 10:
-        end += timedelta(days=1)
-    if end <= start:
-        raise ValueError('Période invalide.')
+    start,end = selected_period(conn,date_from,date_to)
     return start.strftime('%Y-%m-%d %H:%M:%S'), end.strftime('%Y-%m-%d %H:%M:%S')
 
 
@@ -22,6 +16,7 @@ def metadata():
         lo, hi = _dataset_bounds(conn)
         return {'from': lo.date().isoformat(), 'to': (hi-timedelta(hours=1)).date().isoformat(),
                 'default_date': min(lo+timedelta(days=11), hi-timedelta(hours=1)).date().isoformat(),
+                'max_period_days':31,
                 'rooms': conn.execute('SELECT COUNT(*) FROM rooms').fetchone()[0],
                 'monitored_rooms': conn.execute('SELECT COUNT(DISTINCT room) FROM occupancy_hourly').fetchone()[0],
                 'price_eur_kwh': ENERGY_PRICE, 'area_per_person_m2': AREA_PER_PERSON,

@@ -182,3 +182,37 @@ Jalon 3 (L'App Facility Manager) : Coder l'interface finale. Afficher les recomm
 d'action" (Titre, Raison, Économie estimée). Ajouter un bouton "Appliquer" qui simulerait l'envoi d'une commande au
 système de contrôle du bâtiment.
 
+
+
+### Carte et décisions proposées
+
+Les boutons « Voir sur le plan » ouvrent directement l’étage de la salle concernée. La salle sélectionnée est jaune, les salles alimentées par le même départ sont bleues. Le sélecteur de départ permet de parcourir les salles alimentées sur plusieurs étages et les équipements du MSI/CDE. Les départs sans mesure restent visibles ; les consommations partagées ne sont jamais réparties arbitrairement par salle.
+
+La règle `night_presence` détecte toute présence mesurée entre 00h et 06h (heure des données), même sur une seule heure. Des heures manquantes ou une interruption de présence séparent les épisodes. C’est une vérification de planning/capteur, pas une preuve d’intrusion. Le filtre « heures ouvrées uniquement » exclut ces alertes. Les règles existantes de consommation active sans présence continuent d’exiger des heures consécutives et une couverture complète des salles alimentées.
+
+Les actions issues des règles sont affichées automatiquement, puis reformulées par Ollama avec un schéma JSON contraint. Le backend vérifie les références et la compatibilité des commandes ; aucune coupure n’est proposée pour une présence nocturne. Les réponses IA validées sont mises en cache par modèle, période, mesures et tarif. Une panne du LLM conserve les actions déterministes avec une indication explicite. « Appliquer en simulation » enregistre seulement une commande fictive.
+
+`GET /api/map/data` fournit le modèle de lecture de la carte, y compris les départs sans compteur. `GET /api/energy/circuits/{circuit_id}/assets` charge les équipements du départ à la demande. `GET /api/insights/smart?preview=true` expose les actions déterministes immédiates.
+### Règles métier et suivi des alertes
+
+L’onglet **Règles métier** centralise les règles REG-01 à REG-10, leurs activations, priorités, horaires et seuils. La présence nocturne et le lien départ/salles réutilisent les fonctions existantes. Le créneau nocturne initial reste 00h–06h, modifiable. Les exceptions couvrent des heures entières, comme les mesures agrégées.
+
+Les calendriers sont déclarés par salle ou zone (une salle prend priorité), et les indisponibilités explicitement renseignées. Aucun horaire d’ouverture ni fermeture n’est inventé. Les règles correspondantes attendent ces références. La fraîcheur devient une alerte seulement après confirmation de la cadence horaire ; les exports sont historiques et ne fournissent pas de date de réception originale. La comparaison historique est désactivée initialement et exige une couverture suffisante des créneaux comparables.
+
+Les alertes prioritaires arrivent directement sur l’accueil. Elles peuvent être qualifiées **pertinentes**, **écartées**, **à surveiller** ou **résolues**. Le journal conserve le contexte de chaque qualification. Des observations nouvelles rouvrent un signal résolu ou écarté. Les récurrences regroupent des épisodes distincts dans la fenêtre configurée, même lorsque l’utilisateur consulte une seule journée. Les boutons ouvrent la salle ou la desserte sur la carte ; les correspondances incertaines restent explicites.
+
+La période consultée est limitée à **31 jours inclusifs** sur l’interface et les API. L’import des présences est idempotent : déduplication par capteur/date/salle, exclusion des valeurs ou dates invalides et des salles inconnues ; valeurs contradictoires mises à l’écart. Les défauts techniques ne prouvent pas une absence ou une présence inhabituelle.
+
+`GET/PUT /api/rules` expose et enregistre les paramètres ; `GET /api/alerts`, `GET /api/alerts/{id}`, `POST /api/alerts/{id}/decision` et `GET /api/alerts/history` assurent le suivi. Les actions IA citent leurs règles, ignorent les alertes écartées/résolues et ne chiffrent aucune économie pour une simple vérification de planning. Les commandes restent simulées.
+
+Les valeurs sont des paramètres de travail à valider avec les utilisateurs. Le prototype local n’implémente pas de comptes ni de rôles : tous ses utilisateurs ont les mêmes droits. La durée configurée du journal définit un horizon de consultation et de prise en compte ; aucune suppression physique automatique n’est effectuée avant validation de la politique de conservation. Les paramètres et les décisions disposent de journaux distincts dans SQLite. Les valeurs initiales figurent dans `Backend/rules.defaults.json`.
+
+### Navigation et journal
+
+La navigation globale reste visible : chaque vue est accessible en un clic, y compris depuis la carte. Les URL `/?view=anomalies`, `/?view=rules` et `/?view=history` ouvrent directement la vue demandée. Les priorités de l’accueil ouvrent la liste filtrée en un clic. Le parcours **Alertes → détails d’un signal → plan d’un épisode** prend trois clics au maximum ; les qualifications sont directement accessibles dans la liste. Les filtres et formulaires restent visibles, sans menus intermédiaires.
+
+Le journal propose un formulaire d’ajout d’action (titre, salle/départ, note) et un bouton de suppression sur chaque action manuelle ou commande simulée. La suppression retire l’entrée de la liste et peut être annulée ; elle ne supprime pas la preuve d’une simulation et ne commande aucun équipement. Les qualifications des alertes restent dans leur historique séparé. API : `POST /api/actions/history`, `DELETE /api/actions/history/{id}` et `POST /api/actions/history/{id}/restore`.
+
+La carte dispose d’un **Calque électrique** activable sans recharger les données. Il affiche les départs renseignés dans chaque salle (identifiant abrégé `D158` pour `Depart_158`, puis `+N` si nécessaire). La liste complète reste accessible en cliquant sur la salle. Sélectionner un départ affiche sa desserte en bleu, avec navigation vers les salles des autres étages. Les salles sans relation sont marquées « Départ inconnu ». Le calque représente les relations documentées du MSI, sans inventer un trajet de câble, et reste activé lors d’un changement d’étage. Le paramètre `layer=electrical` permet d’ouvrir directement cette vue.
+
+Le plan se zoome à la molette (centré sur le pointeur), avec les boutons +/− ou « Vue entière », jusqu’à 1200 %. Le déplacement se fait en glissant le plan ; un glissement ne sélectionne pas involontairement une salle. Le changement d’étage remet le zoom à sa vue entière. La liste des 235 départs reste visible à côté de la carte, avec recherche par identifiant, libellé, usage ou salle et indication des départs sans compteur. Une sélection active le calque et surligne la desserte ; la recherche est conservée pour choisir parmi les résultats.

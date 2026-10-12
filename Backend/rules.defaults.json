@@ -1,0 +1,19 @@
+{
+  "night_start_hour": 0,
+  "night_end_hour": 6,
+  "future_tolerance_minutes": 5,
+  "expected_hourly_presence": false,
+  "freshness_hours": 3,
+  "repeat_window_days": 7,
+  "repeat_threshold": 3,
+  "variation_ratio": 2,
+  "variation_min_hours": 5,
+  "reference_days": 28,
+  "minimum_coverage": 0.8,
+  "decision_retention_days": 180,
+  "enabled": {"REG-01":true,"REG-02":true,"REG-03":true,"REG-04":true,"REG-05":true,"REG-06":true,"REG-07":true,"REG-08":true,"REG-09":true,"REG-10":false},
+  "priorities": {"REG-01":"medium","REG-02":"medium","REG-03":"high","REG-04":"low","REG-05":"low","REG-06":"low","REG-07":"medium","REG-08":"high","REG-09":"low","REG-10":"medium"},
+  "schedules": [],
+  "exceptions": [],
+  "closures": []
+}

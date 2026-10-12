@@ -37,7 +37,7 @@ def _parse_dt(value: str | None, fallback: datetime) -> datetime:
 
 def _dataset_bounds(conn) -> tuple[datetime, datetime]:
     row = conn.execute(
-        "SELECT MIN(hour) AS mn, MAX(hour) AS mx FROM occupancy_hourly"
+        "SELECT MIN(hour) AS mn, MAX(hour) AS mx FROM occupancy_hourly WHERE datetime(hour) IS NOT NULL"
     ).fetchone()
     if not row or not row["mn"]:
         now = datetime(2026, 1, 12)
@@ -47,7 +47,22 @@ def _dataset_bounds(conn) -> tuple[datetime, datetime]:
     return start, end
 
 
-def _enrich(row: dict, rooms: dict[str, dict]) -> dict:
+def selected_period(conn, date_from=None, date_to=None):
+    from .rules import validate_period
+    lo,hi=_dataset_bounds(conn)
+    default=min(lo+timedelta(days=11),hi-timedelta(hours=1)).replace(hour=0,minute=0,second=0)
+    start=_parse_dt(date_from,default)
+    if date_to:
+        end=_parse_dt(date_to,hi)
+        if len(date_to.strip())==10:end+=timedelta(days=1)
+        if not date_from:start=end-timedelta(days=1)
+    else:
+        end=start+timedelta(days=1)
+    validate_period(start,end)
+    return start,end
+
+
+def _enrich(row: dict, rooms: dict[str, dict], rule_config=None) -> dict:
     room_code = row.get("room") or None
     meta = rooms.get(room_code or "", {})
     floor = row.get("floor") or meta.get("floor")
@@ -74,7 +89,11 @@ def _enrich(row: dict, rooms: dict[str, dict]) -> dict:
             business_hours += 1
         cursor += timedelta(hours=1)
 
-    if kind == "empty_room_hvac":
+    if kind == "night_presence":
+        severity = rule_config.priorities["REG-01"] if rule_config else "medium"
+        night_window = f"{rule_config.night_start_hour:02d}h–{rule_config.night_end_hour:02d}h" if rule_config else "00h–06h"
+        evidence = f"Présence mesurée dans {name} ({room_code}) entre {start:%H:%M} et {end:%H:%M}, dans la plage nocturne {night_window}. Vérifier une activité autorisée ou un capteur bloqué. Aucun planning disponible pour conclure à une présence non autorisée."
+    elif kind == "empty_room_hvac":
         evidence = (
             f"La pièce {name} ({room_code}) est inoccupée pendant {duration} h "
             f"alors que le HVAC consomme {wasted:.2f} kWh "
@@ -108,7 +127,7 @@ def _enrich(row: dict, rooms: dict[str, dict]) -> dict:
         "end_at": end.isoformat(sep=" "),
         "duration_hours": duration,
         "business_hours": business_hours,
-        "occupied": False,
+        "occupied": kind == "night_presence",
         "energy_kwh": round(wasted, 3),
         "meters": [m.strip() for m in (row.get("meters") or "").split("|") if m.strip()],
         "occupancy_samples": int(row.get("occupancy_samples") or 0),
@@ -154,25 +173,25 @@ def detect_anomalies(
 ) -> dict:
     conn = connect()
     try:
-        data_from, data_to = _dataset_bounds(conn)
-        start = _parse_dt(date_from, data_from)
-        end = _parse_dt(date_to, data_to)
-        if date_to and len(date_to.strip()) == 10:
-            end = end + timedelta(days=1)
-        if end <= start:
-            raise ValueError("La fin doit être postérieure au début.")
+        start,end = selected_period(conn,date_from,date_to)
+        from .rules import settings
+        rule_config=settings(conn)
 
         params = {
             "date_from": start.strftime("%Y-%m-%d %H:%M:%S"),
             "date_to": end.strftime("%Y-%m-%d %H:%M:%S"),
+            "night_start":rule_config.night_start_hour,"night_end":rule_config.night_end_hour,
+            "exceptions":__import__('json').dumps([{'room':e.room,'start':str(e.start),'end':str(e.end)} for e in rule_config.exceptions]),
             "min_hours": int(min_hours),
             "min_hvac_kwh": float(min_hvac_kwh),
             "min_lighting_kwh": float(min_lighting_kwh),
         }
 
-        wanted = set(types or ["empty_room_hvac", "empty_zone_hvac", "empty_room_lighting", "empty_zone_lighting"])
-        if not wanted <= {"empty_room_hvac", "empty_zone_hvac", "empty_room_lighting", "empty_zone_lighting"}:
+        wanted = set(types or ["empty_room_hvac", "empty_zone_hvac", "empty_room_lighting", "empty_zone_lighting", "night_presence"])
+        if not wanted <= {"empty_room_hvac", "empty_zone_hvac", "empty_room_lighting", "empty_zone_lighting", "night_presence"}:
             raise ValueError("Type d’anomalie inconnu.")
+        if not rule_config.enabled["REG-01"]:
+            wanted.discard("night_presence")
         queries = []
         if "empty_room_hvac" in wanted:
             queries.append(_load_sql("empty_room_hvac.sql"))
@@ -202,7 +221,7 @@ def detect_anomalies(
                 row['room'] = served[0]['code'] if len(served)==1 else None
                 row['floor'] = ' / '.join(sorted({r['floor'] or 'Non renseigné' for r in served}))
                 row['zone'] = ' / '.join(sorted({r['zone'] or 'Non renseignée' for r in served}))
-                item = _enrich(row,rooms)
+                item = _enrich(row,rooms,rule_config)
                 item['id'] = f"electrical:{row['sensor_id']}:{row['start_at']}"
                 item['circuit_id'] = c['circuit_id']
                 item['sensor_id'] = c['sensor_id']
@@ -218,10 +237,17 @@ def detect_anomalies(
         else:
             for sql in queries:
                 raw_rows.extend(dict(r) for r in conn.execute(sql, params).fetchall())
+        if "night_presence" in wanted and not business_hours_only:
+            for row in conn.execute(_load_sql('night_presence.sql'),params):
+                item = _enrich(dict(row),rooms,rule_config)
+                item['rule'] = f'REG-01 · Présence entre {rule_config.night_start_hour:02d}h et {rule_config.night_end_hour:02d}h · à vérifier'
+                if circuit_mode:
+                    item['served_rooms'] = [rooms[item['room']]]
+                raw_rows.append(item if circuit_mode else dict(row))
     finally:
         conn.close()
 
-    anomalies = raw_rows if circuit_mode else [_enrich(row, rooms) for row in raw_rows]
+    anomalies = raw_rows if circuit_mode else [_enrich(row, rooms,rule_config) for row in raw_rows]
     if business_hours_only:
         anomalies = [a for a in anomalies if a["business_hours"] >= min_hours]
     anomalies.sort(key=lambda a: a["energy_kwh"], reverse=True)
@@ -248,6 +274,7 @@ def detect_anomalies(
             "min_hvac_kwh_per_hour": float(min_hvac_kwh),
             "min_lighting_kwh_per_hour": float(min_lighting_kwh),
             "business_hours_only": business_hours_only,
+            "night_presence_window": f"{rule_config.night_start_hour:02d}:00–{rule_config.night_end_hour:02d}:00 (heure des données)",
         },
         "summary": {
             "anomaly_count": len(anomalies),
@@ -257,8 +284,8 @@ def detect_anomalies(
             "rooms_affected": len(rooms_affected),
             "zones_affected": len(zones_affected),
             "by_type": by_type,
-            "circuits_affected": len({a["circuit_id"] for a in anomalies}) if circuit_mode else None,
-            "shared_circuits_affected": len({a["circuit_id"] for a in anomalies if a["mapping"]=="shared"}) if circuit_mode else None,
+            "circuits_affected": len({a.get("circuit_id") for a in anomalies if a.get("circuit_id")}) if circuit_mode else None,
+            "shared_circuits_affected": len({a["circuit_id"] for a in anomalies if a.get("mapping")=="shared"}) if circuit_mode else None,
         },
         "energy_basis": "electrical_circuits" if circuit_mode else "legacy_room_zone",
         "anomalies": truncated,
